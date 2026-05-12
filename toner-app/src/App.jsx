@@ -182,19 +182,6 @@ const App = () => {
         </div>
 
         <div className="results-paper">
-          {/* Add this dynamic header */}
-          {activeFiles.length > 0 && !debouncedSearch && comparisonData.length > 0 && (
-            <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid #e4e4e7', background: '#f8fafc' }}>
-               <h3 style={{ margin: 0, fontSize: '0.9rem', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                 <TrendingDown size={18} className="text-success" />
-                 🔥 Top Oportunidades de Poupança Encontradas
-               </h3>
-               <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.75rem', color: '#64748b' }}>
-                 Produtos encontrados em múltiplos fornecedores, ordenados pela maior diferença de preço.
-               </p>
-            </div>
-          )}
-
           {comparisonData.length > 0 ? (
             <table className="pro-table">
               <thead>
