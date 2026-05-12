@@ -38,20 +38,41 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
   };
 
   const handleCellClick = (rowIndex, colIndex) => {
-    // Check if clicking an already selected cell to toggle/undo
+    // 1. Toggle logic (Check if clicking an already selected cell to undo)
     const existingStepIndex = stepKeys.findIndex(key => 
       selections[key]?.r === rowIndex && selections[key]?.c === colIndex
     );
 
     if (existingStepIndex !== -1) {
-      // Toggle off: clear this selection and move step here
       setSelections(prev => ({ ...prev, [stepKeys[existingStepIndex]]: null }));
       setStep(existingStepIndex);
       return;
     }
 
-    // Normal selection
+    // 2. Smart Category Switching logic
     const currentStepKey = stepKeys[step];
+    const isEndStep = currentStepKey.endsWith('End');
+
+    if (isEndStep) {
+      const startStepKey = stepKeys[step - 1];
+      const startSelection = selections[startStepKey];
+
+      // If clicking a DIFFERENT column than the start, assume it's the next category
+      if (startSelection && colIndex !== startSelection.c) {
+        const nextStartKey = stepKeys[step + 1];
+        if (nextStartKey) {
+          setSelections(prev => ({ 
+            ...prev, 
+            [currentStepKey]: null, // Ensure End is null
+            [nextStartKey]: { r: rowIndex, c: colIndex } 
+          }));
+          setStep(step + 2); // Jump to the next step after the next Start
+          return;
+        }
+      }
+    }
+
+    // 3. Normal selection logic
     setSelections(prev => ({ ...prev, [currentStepKey]: { r: rowIndex, c: colIndex } }));
 
     if (step < 5) {
