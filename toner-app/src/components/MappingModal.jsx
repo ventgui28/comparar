@@ -108,18 +108,17 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
   const handleFinalize = () => {
     if (!canFinalize) return;
 
-    const allEndRows = [
-      selections.ref.end?.r,
-      selections.name.end?.r,
-      selections.price.end?.r
-    ].filter(r => r !== undefined && r !== null);
+    // Collect all selected rows
+    const allStarts = [selections.ref.start?.r, selections.name.start?.r, selections.price.start?.r];
+    const allEnds = [selections.ref.end?.r, selections.name.end?.r, selections.price.end?.r];
 
     const mapping = {
       ref: selections.ref.start.c,
       desc: selections.name.start.c,
       price: selections.price.start.c,
-      startRow: Math.min(selections.ref.start.r, selections.name.start.r, selections.price.start.r),
-      endRow: allEndRows.length > 0 ? Math.max(...allEndRows) + 1 : null
+      startRow: Math.min(...allStarts),
+      // If any End was selected, take the max, otherwise null for global "until end"
+      endRow: allEnds.some(e => e !== undefined && e !== null) ? Math.max(...allEnds.filter(e => e != null)) + 1 : null
     };
 
     onConfirm(mapping, filteredData);
