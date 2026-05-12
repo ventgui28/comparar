@@ -66,9 +66,11 @@ const ComparisonTable = ({ comparisonData, activeFiles, onDeleteProduct }) => {
                 {activeFiles.map(f => (
                   <PriceDisplay key={f.id} price={item.prices[f.id]} isBest={item.prices[f.id] === minPrice && prices.length > 1} />
                 ))}
-                <td style={{ textAlign: 'center', fontWeight: 600, color: '#10b981' }}>
+                <td style={{ textAlign: 'center' }}>
                   {prices.length > 1 && savings > 0 ? (
-                    `-${savings.toFixed(2)}€`
+                    <div className="best-offer-chip" style={{ background: '#10b981', color: '#fff' }}>
+                      -{savings.toFixed(2)}€
+                    </div>
                   ) : (
                     <span style={{ color: '#e4e4e7' }}>---</span>
                   )}
