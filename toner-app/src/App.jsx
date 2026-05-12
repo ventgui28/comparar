@@ -75,9 +75,10 @@ const App = () => {
   };
 
   const comparisonData = useMemo(() => {
-    if (activeFiles.length === 0 || !debouncedSearch) return [];
+    if (activeFiles.length === 0) return [];
 
     const s = debouncedSearch.toLowerCase();
+    const isSearchEmpty = !s;
     const masterMap = new Map();
 
     activeFiles.forEach(file => {
@@ -85,7 +86,7 @@ const App = () => {
         const matchesRef = item.ref.toLowerCase().includes(s);
         const matchesDesc = item.desc && item.desc.toLowerCase().includes(s);
         
-        if (matchesRef || matchesDesc) {
+        if (isSearchEmpty || matchesRef || matchesDesc) {
           const key = item.desc.trim().toLowerCase() || item.ref.trim().toLowerCase();
           
           if (!masterMap.has(key)) {
@@ -106,7 +107,21 @@ const App = () => {
       });
     });
 
-    return Array.from(masterMap.values());
+    let results = Array.from(masterMap.values());
+
+    if (isSearchEmpty) {
+      results = results
+        .filter(item => Object.keys(item.prices).length > 1)
+        .map(item => {
+          const prices = Object.values(item.prices);
+          const delta = Math.max(...prices) - Math.min(...prices);
+          return { ...item, delta };
+        })
+        .sort((a, b) => b.delta - a.delta)
+        .slice(0, 50);
+    }
+
+    return results;
   }, [activeFiles, debouncedSearch]);
 
   return (
