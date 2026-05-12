@@ -33,27 +33,41 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
   };
 
   const handleCellClick = (rowIndex, colIndex) => {
-    let targetSlot = activeSlot;
-    
-    // If no active slot, find next unmapped
-    if (!targetSlot) {
-      if (!selections.ref.start) targetSlot = 'ref';
-      else if (!selections.name.start) targetSlot = 'name';
-      else if (!selections.price.start) targetSlot = 'price';
-    }
-
-    if (!targetSlot) return;
-
-    const slot = selections[targetSlot];
-
-    // Toggle: if clicked cell is already the start or end, clear it
-    if ((slot.start?.r === rowIndex && slot.start?.c === colIndex) || 
-        (slot.end?.r === rowIndex && slot.end?.c === colIndex)) {
-      setSelections(prev => ({ ...prev, [targetSlot]: { start: null, end: null } }));
+    // 1. Toggle/Undo Logic
+    const activeSlotData = selections[activeSlot];
+    if ((activeSlotData.start?.r === rowIndex && activeSlotData.start?.c === colIndex) || 
+        (activeSlotData.end?.r === rowIndex && activeSlotData.end?.c === colIndex)) {
+      setSelections(prev => ({ ...prev, [activeSlot]: { start: null, end: null } }));
       return;
     }
 
-    // Set Start/End
+    // 2. Automatic Category Switching
+    const slots = ['ref', 'name', 'price'];
+    const currentSlotIndex = slots.indexOf(activeSlot);
+    
+    // Check if clicked column is already used by a DIFFERENT slot
+    const occupiedSlot = slots.find(s => s !== activeSlot && selections[s].start?.c === colIndex);
+    
+    if (occupiedSlot) {
+      setActiveSlot(occupiedSlot);
+      return;
+    }
+
+    // If current slot has a start, but clicked column is different, switch to next slot
+    if (selections[activeSlot].start && selections[activeSlot].start.c !== colIndex) {
+      const nextSlot = slots[currentSlotIndex + 1];
+      if (nextSlot) {
+        setActiveSlot(nextSlot);
+      }
+    }
+
+    // 3. Selection Logic (Assign to activeSlot)
+    // Note: use functional update for activeSlot if needed based on updated state
+    const targetSlot = (selections[activeSlot].start && selections[activeSlot].start.c !== colIndex) 
+      ? (slots[currentSlotIndex + 1] || activeSlot) 
+      : activeSlot;
+
+    const slot = selections[targetSlot];
     if (!slot.start) {
       setSelections(prev => ({ ...prev, [targetSlot]: { start: { r: rowIndex, c: colIndex }, end: null } }));
     } else {
