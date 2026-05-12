@@ -1,0 +1,320 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --bg-app: #fcfcfd;
+  --bg-paper: #ffffff;
+  --accent: #18181b;
+  --text-main: #18181b;
+  --text-muted: #71717a;
+  --border-light: rgba(0, 0, 0, 0.04);
+  --border-medium: rgba(0, 0, 0, 0.08);
+  --success: #10b981;
+  --primary: #0071e3;
+  --shadow-premium: 0 20px 50px -12px rgba(0, 0, 0, 0.05);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Outfit', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background-color: var(--bg-app);
+  color: var(--text-main);
+  line-height: 1.5;
+}
+
+.app-shell {
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+}
+
+/* Upload Interface */
+.upload-shelf {
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.drop-surface {
+  background: white;
+  padding: 1rem 2.5rem;
+  border-radius: 100px;
+  border: 1px solid var(--border-medium);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+  transition: all 0.3s;
+}
+
+.drop-surface:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  border-color: var(--accent);
+}
+
+.drop-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  color: var(--text-main);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* Active Files Indicators */
+.indicators-row {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 3rem;
+  flex-wrap: wrap;
+}
+
+.status-badge {
+  background: white;
+  border: 1px solid var(--border-medium);
+  padding: 0.5rem 1rem;
+  border-radius: 100px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+/* Search Bar */
+.search-wrap {
+  position: relative;
+  margin-bottom: 3rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.main-search {
+  width: 100%;
+  padding: 1.5rem 4rem;
+  background: white;
+  border: 1px solid var(--border-medium);
+  border-radius: 24px;
+  font-size: 1.25rem;
+  outline: none;
+  box-shadow: var(--shadow-premium);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.main-search:focus {
+  border-color: var(--accent);
+  transform: scale(1.02);
+}
+
+.search-icon {
+  position: absolute;
+  left: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+/* Table Container & Responsiveness */
+.results-paper {
+  background: white;
+  border-radius: 32px;
+  box-shadow: var(--shadow-premium);
+  border: 1px solid var(--border-light);
+  overflow-x: auto; /* IMPORTANTE: Scroll horizontal para muitos ficheiros */
+}
+
+.pro-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px; /* Garante que não fica esmagada */
+}
+
+.pro-table th {
+  padding: 1.5rem;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+  background: #fafafa;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.pro-table td {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-light);
+  transition: all 0.2s;
+}
+
+.pro-table tr:hover td {
+  background: #fdfdfd;
+}
+
+.product-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 0.3rem;
+}
+
+.product-subtext {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.col-price { text-align: right; min-width: 150px; }
+
+.price-value {
+  font-size: 1.15rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.price-best .price-value {
+  color: var(--success);
+  font-weight: 800;
+}
+
+.best-offer-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--text-main);
+  color: white;
+  padding: 0.5rem 1.2rem;
+  border-radius: 100px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+/* Modal Styling */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 2rem;
+}
+
+.modal-content {
+  background: white;
+  width: 100%;
+  max-width: 1200px;
+  max-height: 90vh;
+  border-radius: 40px;
+  padding: 3rem;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.wizard-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.step-badge {
+  background: #f4f4f5;
+  color: var(--text-muted);
+  padding: 0.4rem 1rem;
+  border-radius: 100px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.step-instruction {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-top: 1rem;
+  color: var(--text-main);
+}
+
+.preview-container {
+  flex: 1;
+  overflow: auto;
+  border: 1px solid var(--border-medium);
+  border-radius: 20px;
+  background: #fcfcfc;
+}
+
+.preview-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.preview-table th, .preview-table td {
+  padding: 1rem;
+  border: 1px solid var(--border-light);
+  white-space: nowrap;
+}
+
+.preview-table.clickable td:hover {
+  background: #f0f9ff;
+  cursor: cell;
+}
+
+.cell-selected {
+  font-weight: 800 !important;
+  color: white !important;
+}
+
+.cell-selected.name { background: #0071e3 !important; }
+.cell-selected.ref { background: #8b5cf6 !important; }
+.cell-selected.price { background: #10b981 !important; }
+
+/* Buttons in Modal */
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2.5rem;
+}
+
+.btn-cancel {
+  padding: 1rem 2.5rem;
+  background: transparent;
+  border: 1px solid var(--border-medium);
+  border-radius: 100px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-confirm {
+  padding: 1rem 2.5rem;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 100px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Animations */
+.animate-in {
+  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
