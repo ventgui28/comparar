@@ -12,3 +12,7 @@ dist/
 *.njsproj
 *.sln
 *.sw?
+GEMINI.md
+docs/
+venv/
+inspect_excel.py
