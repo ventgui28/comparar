@@ -1,5 +1,14 @@
 import { useMemo } from 'react';
 
+const normalizeDescription = (text) => {
+  if (!text) return '';
+  return text
+    .toLowerCase()
+    .replace(/\(.*\)/g, '') // remove parenthetical content
+    .replace(/\s+/g, ' ')   // normalize spaces
+    .trim();
+};
+
 export const useProductComparison = (activeFiles, debouncedSearch) => {
   return useMemo(() => {
     if (activeFiles.length === 0) return [];
@@ -14,7 +23,9 @@ export const useProductComparison = (activeFiles, debouncedSearch) => {
         const matchesDesc = item.desc && item.desc.toLowerCase().includes(s);
         
         if (isSearchEmpty || matchesRef || matchesDesc) {
-          const key = item.desc.trim().toLowerCase() || item.ref.trim().toLowerCase();
+          // Use normalized description as primary key
+          const normalizedDesc = normalizeDescription(item.desc);
+          const key = normalizedDesc || item.ref.trim().toLowerCase();
           
           if (!masterMap.has(key)) {
             masterMap.set(key, { 
