@@ -32,13 +32,15 @@ const ComparisonTable = ({ comparisonData, activeFiles, onDeleteProduct }) => {
           <th width="60"></th>
           <th>Descrição do Produto</th>
           {activeFiles.map(f => <th key={f.id} className="col-price">{f.name}</th>)}
-          <th width="150" style={{ textAlign: 'center' }}>Melhor Preço</th>
+          <th width="150" style={{ textAlign: 'center' }}>Poupança</th>
         </tr>
       </thead>
       <tbody>
         {comparisonData.map((item) => {
-          const prices = Object.values(item.prices);
+          const prices = Object.values(item.prices).filter(p => p > 0);
           const minPrice = Math.min(...prices);
+          const maxPrice = Math.max(...prices);
+          const savings = maxPrice - minPrice;
           const bestFileId = Object.keys(item.prices).find(id => item.prices[id] === minPrice);
           const bestFile = activeFiles.find(f => f.id.toString() === bestFileId.toString());
           const isExpanded = expandedRows.has(item.id);
@@ -64,11 +66,11 @@ const ComparisonTable = ({ comparisonData, activeFiles, onDeleteProduct }) => {
                 {activeFiles.map(f => (
                   <PriceDisplay key={f.id} price={item.prices[f.id]} isBest={item.prices[f.id] === minPrice && prices.length > 1} />
                 ))}
-                <td style={{ textAlign: 'center' }}>
-                  {bestFile && prices.length > 1 && (
-                    <div className="best-offer-chip">
-                      {minPrice.toFixed(2)}€
-                    </div>
+                <td style={{ textAlign: 'center', fontWeight: 600, color: '#10b981' }}>
+                  {prices.length > 1 && savings > 0 ? (
+                    `-${savings.toFixed(2)}€`
+                  ) : (
+                    <span style={{ color: '#e4e4e7' }}>---</span>
                   )}
                 </td>
               </tr>
