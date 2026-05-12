@@ -4,21 +4,16 @@ import { Search, Eye, EyeOff, Trash2, Check } from 'lucide-react';
 const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
   const { sheetNames, sheetsData } = excelBundle;
   const [selectedSheet, setSelectedSheet] = useState(sheetNames[0]);
-  const [step, setStep] = useState(0); 
+  const [activeSlot, setActiveSlot] = useState('ref');
   const [debugSearch, setDebugSearch] = useState('');
   const [showRaw, setShowRaw] = useState(false);
   const [ignoredRows, setIgnoredRows] = useState(new Set());
   
   const [selections, setSelections] = useState({
-    refStart: null, refEnd: null, nameStart: null, nameEnd: null, priceStart: null, priceEnd: null
+    ref: { start: null, end: null },
+    name: { start: null, end: null },
+    price: { start: null, end: null }
   });
-
-  const stepKeys = ['refStart', 'refEnd', 'nameStart', 'nameEnd', 'priceStart', 'priceEnd'];
-  const stepLabels = [
-    'Clique na PRIMEIRA REFERÊNCIA', 'Clique na ÚLTIMA REFERÊNCIA (opcional)',
-    'Clique no PRIMEIRO NOME', 'Clique no ÚLTIMO NOME (opcional)',
-    'Clique no PRIMEIRO PREÇO', 'Clique no ÚLTIMO PREÇO (opcional)'
-  ];
 
   const currentData = sheetsData[selectedSheet] || [];
   
@@ -38,45 +33,31 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
   };
 
   const handleCellClick = (rowIndex, colIndex) => {
-    // 1. Toggle logic (Check if clicking an already selected cell to undo)
-    const existingStepIndex = stepKeys.findIndex(key => 
-      selections[key]?.r === rowIndex && selections[key]?.c === colIndex
-    );
+    let targetSlot = activeSlot;
+    
+    // If no active slot, find next unmapped
+    if (!targetSlot) {
+      if (!selections.ref.start) targetSlot = 'ref';
+      else if (!selections.name.start) targetSlot = 'name';
+      else if (!selections.price.start) targetSlot = 'price';
+    }
 
-    if (existingStepIndex !== -1) {
-      setSelections(prev => ({ ...prev, [stepKeys[existingStepIndex]]: null }));
-      setStep(existingStepIndex);
+    if (!targetSlot) return;
+
+    const slot = selections[targetSlot];
+
+    // Toggle: if clicked cell is already the start or end, clear it
+    if ((slot.start?.r === rowIndex && slot.start?.c === colIndex) || 
+        (slot.end?.r === rowIndex && slot.end?.c === colIndex)) {
+      setSelections(prev => ({ ...prev, [targetSlot]: { start: null, end: null } }));
       return;
     }
 
-    // 2. Smart Category Switching logic
-    const currentStepKey = stepKeys[step];
-    const isEndStep = currentStepKey.endsWith('End');
-
-    if (isEndStep) {
-      const startStepKey = stepKeys[step - 1];
-      const startSelection = selections[startStepKey];
-
-      // If clicking a DIFFERENT column than the start, assume it's the next category
-      if (startSelection && colIndex !== startSelection.c) {
-        const nextStartKey = stepKeys[step + 1];
-        if (nextStartKey) {
-          setSelections(prev => ({ 
-            ...prev, 
-            [currentStepKey]: null, // Ensure End is null
-            [nextStartKey]: { r: rowIndex, c: colIndex } 
-          }));
-          setStep(step + 2); // Jump to the next step after the next Start
-          return;
-        }
-      }
-    }
-
-    // 3. Normal selection logic
-    setSelections(prev => ({ ...prev, [currentStepKey]: { r: rowIndex, c: colIndex } }));
-
-    if (step < 5) {
-      setStep(step + 1);
+    // Set Start/End
+    if (!slot.start) {
+      setSelections(prev => ({ ...prev, [targetSlot]: { start: { r: rowIndex, c: colIndex }, end: null } }));
+    } else {
+      setSelections(prev => ({ ...prev, [targetSlot]: { ...slot, end: { r: rowIndex, c: colIndex } } }));
     }
   };
 
@@ -84,46 +65,46 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
     const classes = [];
     
     // Exact matches (Start/End)
-    if (selections.refStart?.r === r && selections.refStart?.c === c) classes.push('cell-selected ref');
-    if (selections.refEnd?.r === r && selections.refEnd?.c === c) classes.push('cell-selected ref');
-    if (selections.nameStart?.r === r && selections.nameStart?.c === c) classes.push('cell-selected name');
-    if (selections.nameEnd?.r === r && selections.nameEnd?.c === c) classes.push('cell-selected name');
-    if (selections.priceStart?.r === r && selections.priceStart?.c === c) classes.push('cell-selected price');
-    if (selections.priceEnd?.r === r && selections.priceEnd?.c === c) classes.push('cell-selected price');
+    if (selections.ref.start?.r === r && selections.ref.start?.c === c) classes.push('cell-selected ref');
+    if (selections.ref.end?.r === r && selections.ref.end?.c === c) classes.push('cell-selected ref');
+    if (selections.name.start?.r === r && selections.name.start?.c === c) classes.push('cell-selected name');
+    if (selections.name.end?.r === r && selections.name.end?.c === c) classes.push('cell-selected name');
+    if (selections.price.start?.r === r && selections.price.start?.c === c) classes.push('cell-selected price');
+    if (selections.price.end?.r === r && selections.price.end?.c === c) classes.push('cell-selected price');
 
     // Range highlights
-    const checkRange = (start, end, className) => {
-      if (!start) return;
-      if (c === start.c && r >= start.r) {
-        if (!end || r <= end.r) {
+    const checkRange = (slot, className) => {
+      if (!slot.start) return;
+      if (c === slot.start.c && r >= slot.start.r) {
+        if (!slot.end || r <= slot.end.r) {
           classes.push(className);
         }
       }
     };
 
-    checkRange(selections.refStart, selections.refEnd, 'range-ref');
-    checkRange(selections.nameStart, selections.nameEnd, 'range-name');
-    checkRange(selections.priceStart, selections.priceEnd, 'range-price');
+    checkRange(selections.ref, 'range-ref');
+    checkRange(selections.name, 'range-name');
+    checkRange(selections.price, 'range-price');
 
     return classes.join(' ');
   };
 
-  const canFinalize = selections.refStart && selections.nameStart && selections.priceStart;
+  const canFinalize = selections.ref.start && selections.name.start && selections.price.start;
 
   const handleFinalize = () => {
     if (!canFinalize) return;
 
     const allEndRows = [
-      selections.refEnd?.r,
-      selections.nameEnd?.r,
-      selections.priceEnd?.r
+      selections.ref.end?.r,
+      selections.name.end?.r,
+      selections.price.end?.r
     ].filter(r => r !== undefined && r !== null);
 
     const mapping = {
-      ref: selections.refStart.c,
-      desc: selections.nameStart.c,
-      price: selections.priceStart.c,
-      startRow: Math.min(selections.refStart.r, selections.nameStart.r, selections.priceStart.r),
+      ref: selections.ref.start.c,
+      desc: selections.name.start.c,
+      price: selections.price.start.c,
+      startRow: Math.min(selections.ref.start.r, selections.name.start.r, selections.price.start.r),
       endRow: allEndRows.length > 0 ? Math.max(...allEndRows) + 1 : null
     };
 
@@ -134,10 +115,22 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
     <div className="modal-overlay">
       <div className="modal-content animate-in">
         <div className="wizard-header">
+          <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', marginBottom: '1rem' }}>
+            {['ref', 'name', 'price'].map(slot => (
+              <button 
+                key={slot}
+                className={`pill ${activeSlot === slot ? 'active' : ''}`}
+                onClick={() => setActiveSlot(slot)}
+              >
+                {slot.toUpperCase()}
+              </button>
+            ))}
+          </div>
+
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
             <div>
               <label style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)' }}>FOLHA</label>
-              <select className="pill" value={selectedSheet} onChange={(e) => { setSelectedSheet(e.target.value); setStep(0); setSelections({ refStart: null, refEnd: null, nameStart: null, nameEnd: null, priceStart: null, priceEnd: null }); setIgnoredRows(new Set()); }}>
+              <select className="pill" value={selectedSheet} onChange={(e) => { setSelectedSheet(e.target.value); setSelections({ ref: { start: null, end: null }, name: { start: null, end: null }, price: { start: null, end: null } }); setIgnoredRows(new Set()); }}>
                 {sheetNames.map(n => <option key={n} value={n}>{n}</option>)}
               </select>
             </div>
@@ -148,18 +141,9 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
           </div>
 
           {!showRaw && (
-            <>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
-                <span className="step-badge">Passo {step + 1} de 6</span>
-                {canFinalize && (
-                  <span className="step-badge success" style={{ background: '#dcfce7', color: '#166534' }}>
-                    Pronto para Confirmar
-                  </span>
-                )}
-              </div>
-              <h2 className="step-instruction">{stepLabels[step]}</h2>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Dica: Podes clicar no <Trash2 size={10}/> para esconder linhas de lixo.</p>
-            </>
+            <div style={{ textAlign: 'center' }}>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Seleciona o slot acima e clica nas células para mapear.</p>
+            </div>
           )}
         </div>
 
@@ -201,7 +185,6 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
 
         <div className="modal-actions">
           <button className="btn-cancel" onClick={onCancel}>Cancelar</button>
-          {!showRaw && step > 0 && <button className="btn-cancel" onClick={() => setStep(step - 1)}>Voltar</button>}
           
           {canFinalize && (
             <button className="btn-primary" onClick={handleFinalize} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
