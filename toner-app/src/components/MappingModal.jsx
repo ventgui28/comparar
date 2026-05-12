@@ -76,31 +76,29 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
   };
 
   const getCellClass = (r, c) => {
-    const classes = [];
-    
-    // Exact matches (Start/End)
-    if (selections.ref.start?.r === r && selections.ref.start?.c === c) classes.push('cell-selected ref');
-    if (selections.ref.end?.r === r && selections.ref.end?.c === c) classes.push('cell-selected ref');
-    if (selections.name.start?.r === r && selections.name.start?.c === c) classes.push('cell-selected name');
-    if (selections.name.end?.r === r && selections.name.end?.c === c) classes.push('cell-selected name');
-    if (selections.price.start?.r === r && selections.price.start?.c === c) classes.push('cell-selected price');
-    if (selections.price.end?.r === r && selections.price.end?.c === c) classes.push('cell-selected price');
+    // 1. Identify which slot this cell belongs to (if any)
+    const slot = ['ref', 'name', 'price'].find(s => 
+      (selections[s].start?.r === r && selections[s].start?.c === c) ||
+      (selections[s].end?.r === r && selections[s].end?.c === c)
+    );
 
-    // Range highlights
-    const checkRange = (slot, className) => {
-      if (!slot.start) return;
-      if (c === slot.start.c && r >= slot.start.r) {
-        if (!slot.end || r <= slot.end.r) {
-          classes.push(className);
-        }
+    if (slot) {
+      return `cell-selected ${slot}`;
+    }
+
+    // 2. Range highlights (Only if not a marker)
+    const checkRange = (s, className) => {
+      if (selections[s].start && c === selections[s].start.c && r >= selections[s].start.r) {
+        if (!selections[s].end || r <= selections[s].end.r) return className;
       }
+      return null;
     };
 
-    checkRange(selections.ref, 'range-ref');
-    checkRange(selections.name, 'range-name');
-    checkRange(selections.price, 'range-price');
+    const rangeClass = checkRange('ref', 'range-ref') || 
+                       checkRange('name', 'range-name') || 
+                       checkRange('price', 'range-price');
 
-    return classes.join(' ');
+    return rangeClass || '';
   };
 
   const canFinalize = selections.ref.start && selections.name.start && selections.price.start;
@@ -108,7 +106,7 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
   const handleFinalize = () => {
     if (!canFinalize) return;
 
-    // Collect all selected rows
+    // We must ensure that startRow and endRow are derived from the overall selection set
     const allStarts = [selections.ref.start?.r, selections.name.start?.r, selections.price.start?.r];
     const allEnds = [selections.ref.end?.r, selections.name.end?.r, selections.price.end?.r];
 
@@ -116,11 +114,12 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
       ref: selections.ref.start.c,
       desc: selections.name.start.c,
       price: selections.price.start.c,
-      startRow: Math.min(...allStarts),
-      // If any End was selected, take the max, otherwise null for global "until end"
-      endRow: allEnds.some(e => e !== undefined && e !== null) ? Math.max(...allEnds.filter(e => e != null)) + 1 : null
+      startRow: Math.min(...allStarts.filter(r => r != null)),
+      // Only set endRow if at least one column has an end row defined
+      endRow: allEnds.some(e => e != null) ? Math.max(...allEnds.filter(e => e != null)) : null
     };
 
+    console.log("Mapping Finalizado:", mapping);
     onConfirm(mapping, filteredData);
   };
 
