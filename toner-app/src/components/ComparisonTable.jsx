@@ -68,7 +68,7 @@ const ComparisonTable = ({ comparisonData, activeFiles, onDeleteProduct }) => {
                 ))}
                 <td style={{ textAlign: 'center' }}>
                   {prices.length > 1 && savings > 0 ? (
-                    <div className="best-offer-chip" style={{ background: '#10b981', color: '#fff' }}>
+                    <div className="best-offer-chip">
                       -{savings.toFixed(2)}€
                     </div>
                   ) : (
