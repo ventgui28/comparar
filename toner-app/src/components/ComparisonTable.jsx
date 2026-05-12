@@ -31,6 +31,7 @@ const ComparisonTable = ({ comparisonData, activeFiles, onDeleteProduct }) => {
         <tr>
           <th width="60"></th>
           <th>Descrição do Produto</th>
+          <th width="150">Ref. Melhor Preço</th>
           {activeFiles.map(f => <th key={f.id} className="col-price">{f.name}</th>)}
           <th width="150" style={{ textAlign: 'center' }}>Poupança</th>
         </tr>
@@ -42,7 +43,7 @@ const ComparisonTable = ({ comparisonData, activeFiles, onDeleteProduct }) => {
           const maxPrice = Math.max(...prices);
           const savings = maxPrice - minPrice;
           const bestFileId = Object.keys(item.prices).find(id => item.prices[id] === minPrice);
-          const bestFile = activeFiles.find(f => f.id.toString() === bestFileId.toString());
+          const bestRef = item.refs[bestFileId];
           const isExpanded = expandedRows.has(item.id);
 
           return (
@@ -63,6 +64,9 @@ const ComparisonTable = ({ comparisonData, activeFiles, onDeleteProduct }) => {
                      Ficheiro: <strong>{activeFiles.find(f => item.prices[f.id])?.name}</strong> (Linha {item.rowNumbers[Object.keys(item.rowNumbers)[0]]})
                   </div>
                 </td>
+                <td>
+                    <div className="ref-code" style={{ fontWeight: 600, color: 'var(--success)' }}>{bestRef}</div>
+                </td>
                 {activeFiles.map(f => (
                   <PriceDisplay key={f.id} price={item.prices[f.id]} isBest={item.prices[f.id] === minPrice && prices.length > 1} />
                 ))}
@@ -78,7 +82,7 @@ const ComparisonTable = ({ comparisonData, activeFiles, onDeleteProduct }) => {
               </tr>
               {isExpanded && (
                 <tr className="row-details">
-                  <td colSpan={activeFiles.length + 3}>
+                  <td colSpan={activeFiles.length + 4}>
                     <div className="details-content animate-in">
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '2rem' }}>
                         {Object.entries(item.refs).map(([fileId, ref]) => {
