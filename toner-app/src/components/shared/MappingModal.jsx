@@ -119,7 +119,6 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
       endRow: allEnds.some(e => e != null) ? Math.max(...allEnds.filter(e => e != null)) : null
     };
 
-    console.log("Mapping Finalizado:", mapping);
     onConfirm(mapping, filteredData);
   };
 
