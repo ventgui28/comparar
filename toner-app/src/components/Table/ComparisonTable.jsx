@@ -2,11 +2,17 @@ import React, { useState } from 'react';
 import { Trash2 } from 'lucide-react';
 import PriceHistoryModal from '../shared/PriceHistoryModal';
 
-const PriceDisplay = ({ price, isBest }) => (
+const PriceDisplay = ({ price, isBest, trend }) => (
   <td className={isBest ? 'price-best' : 'price-normal'}>
     {price ? (
-      <div className="price-wrapper">
+      <div className="price-wrapper" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <span className="price-value">{price.toFixed(2)}€</span>
+        {trend && (
+           <span className={`trend-badge ${trend.type}`} title={trend.type === 'min' ? 'Preço Mínimo Histórico' : `Variação: ${trend.percent.toFixed(1)}%`}>
+             {trend.type === 'min' ? '🔥' : trend.type === 'up' ? '↑' : '↓'} 
+             {Math.abs(trend.percent).toFixed(0)}%
+           </span>
+        )}
       </div>
     ) : (
       <span className="price-none" style={{ color: '#e4e4e7' }}>---</span>
@@ -94,7 +100,7 @@ const ComparisonTable = ({ comparisonData, activeFiles, onAddToCart, favorites, 
                     <div className="ref-code" style={{ fontWeight: 600, color: 'var(--success)' }}>{bestRef}</div>
                 </td>
                 {activeFiles.map(f => (
-                  <PriceDisplay key={f.id} price={item.prices[f.id]} isBest={item.prices[f.id] === minPrice && prices.length > 1} />
+                  <PriceDisplay key={f.id} price={item.prices[f.id]} isBest={item.prices[f.id] === minPrice && prices.length > 1} trend={item.trend} />
                 ))}
                 <td style={{ textAlign: 'center' }}>
                   {prices.length > 1 && savings > 0 ? (

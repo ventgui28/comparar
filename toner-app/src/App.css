@@ -182,3 +182,16 @@
     border-right-color: var(--border);
   }
 }
+
+.trend-badge {
+  font-size: 0.65rem;
+  padding: 1px 4px;
+  border-radius: 4px;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.trend-badge.min { background: #fee2e2; color: #ef4444; font-weight: bold; }
+.trend-badge.up { color: #ef4444; }
+.trend-badge.down { color: #22c55e; }
