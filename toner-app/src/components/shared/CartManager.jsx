@@ -24,8 +24,8 @@ export const CartManager = ({ cart, products, activeFiles, isOpen, onClose, onUp
           'Referência': prod.refs[shopId],
           'Descrição': prod.desc,
           'Quantidade': qty,
-          'Preço Un.': prod.prices[shopId],
-          'Total': (qty * prod.prices[shopId]).toFixed(2)
+          'Preço Un.': Number(prod.prices[shopId].toFixed(2)),
+          'Total': Number((qty * prod.prices[shopId]).toFixed(2))
         });
       }
     });
