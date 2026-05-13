@@ -3,9 +3,10 @@ import { openDB } from 'idb';
 const DB_NAME = 'TonerAppDB';
 const ACTIVE_FILES_STORE = 'activeFiles';
 const PRICE_HISTORY_STORE = 'priceHistory';
+const PROFILES_STORE = 'profiles';
 
 export const initDB = async () => {
-  return openDB(DB_NAME, 2, {
+  return openDB(DB_NAME, 3, {
     upgrade(db) {
       if (!db.objectStoreNames.contains(ACTIVE_FILES_STORE)) {
         db.createObjectStore(ACTIVE_FILES_STORE, { keyPath: 'id' });
@@ -13,8 +14,26 @@ export const initDB = async () => {
       if (!db.objectStoreNames.contains(PRICE_HISTORY_STORE)) {
         db.createObjectStore(PRICE_HISTORY_STORE, { keyPath: 'id' });
       }
+      if (!db.objectStoreNames.contains(PROFILES_STORE)) {
+        db.createObjectStore(PROFILES_STORE, { keyPath: 'name' });
+      }
     },
   });
+};
+
+export const saveProfile = async (profile) => {
+  const db = await initDB();
+  await db.put(PROFILES_STORE, { ...profile, updatedAt: Date.now() });
+};
+
+export const getProfiles = async () => {
+  const db = await initDB();
+  return db.getAll(PROFILES_STORE);
+};
+
+export const deleteProfile = async (name) => {
+  const db = await initDB();
+  await db.delete(PROFILES_STORE, name);
 };
 
 export const getPriceHistory = async (prodId) => {
