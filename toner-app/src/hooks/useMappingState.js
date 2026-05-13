@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
-import { getProfiles, deleteProfile } from '../utils/db';
+import { getProfiles, deleteProfile, saveProfile } from '../utils/db';
 
 const INITIAL_SELECTIONS = {
   ref: { start: null, end: null },
@@ -41,6 +41,17 @@ export const useMappingState = (sheetNames, sheetsData, fileName) => {
       setCompanyName('');
     }
   }, [companyName]);
+
+  const handleSaveProfile = useCallback(async () => {
+    if (!companyName) return;
+    const profile = {
+      name: companyName,
+      mapping: selections
+    };
+    await saveProfile(profile);
+    const all = await getProfiles();
+    setProfiles(all);
+  }, [companyName, selections]);
 
   const currentData = useMemo(() => sheetsData[selectedSheet] || [], [sheetsData, selectedSheet]);
 
@@ -126,7 +137,8 @@ export const useMappingState = (sheetNames, sheetsData, fileName) => {
     companyName,
     setCompanyName,
     profiles,
-    handleDeleteProfile
+    handleDeleteProfile,
+    handleSaveProfile
   };
 };
 

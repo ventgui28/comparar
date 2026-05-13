@@ -1,4 +1,4 @@
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Save, Trash2 } from 'lucide-react';
 
 const MappingWizardHeader = ({ 
   activeSlot, 
@@ -7,10 +7,61 @@ const MappingWizardHeader = ({
   sheetNames, 
   onSheetChange, 
   showRaw, 
-  setShowRaw 
+  setShowRaw,
+  companyName,
+  setCompanyName,
+  onSaveProfile,
+  onDeleteProfile,
+  profiles
 }) => {
   return (
     <div className="wizard-header">
+      <div className="profile-controls">
+        <div className="profile-input-group">
+          <input 
+            type="text" 
+            placeholder="Nome da Empresa" 
+            value={companyName} 
+            onChange={(e) => setCompanyName(e.target.value)}
+            className="pill"
+            style={{ minWidth: '200px' }}
+          />
+          <button 
+            onClick={onSaveProfile} 
+            className="pill success" 
+            title="Guardar Perfil"
+            disabled={!companyName}
+          >
+            <Save size={16} />
+          </button>
+        </div>
+
+        {profiles.length > 0 && (
+          <div className="profile-select-group">
+            <select 
+              className="pill" 
+              onChange={(e) => {
+                const p = profiles.find(p => p.name === e.target.value);
+                if (p) setCompanyName(p.name);
+              }}
+              value={companyName}
+            >
+              <option value="">Selecionar Perfil...</option>
+              {profiles.map(p => <option key={p.name} value={p.name}>{p.name}</option>)}
+            </select>
+            {companyName && profiles.some(p => p.name === companyName) && (
+              <button 
+                onClick={() => onDeleteProfile(companyName)} 
+                className="pill danger" 
+                title="Apagar Perfil"
+              >
+                <Trash2 size={16} />
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
       <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', marginBottom: '1rem' }}>
         {['ref', 'name', 'price'].map(slot => (
           <button 

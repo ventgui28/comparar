@@ -16,7 +16,12 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel }) => {
     filteredData,
     toggleIgnoreRow,
     handleCellClick,
-    handleSheetChange
+    handleSheetChange,
+    companyName,
+    setCompanyName,
+    profiles,
+    handleDeleteProfile,
+    handleSaveProfile
   } = useMappingState(sheetNames, sheetsData, fileName);
 
   const [showRaw, setShowRaw] = useState(false);
@@ -79,6 +84,11 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel }) => {
           onSheetChange={handleSheetChange}
           showRaw={showRaw}
           setShowRaw={setShowRaw}
+          companyName={companyName}
+          setCompanyName={setCompanyName}
+          onSaveProfile={handleSaveProfile}
+          onDeleteProfile={handleDeleteProfile}
+          profiles={profiles}
         />
 
         <MappingPreviewTable 
