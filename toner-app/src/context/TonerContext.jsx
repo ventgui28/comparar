@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { saveFiles, loadFiles } from '../utils/db';
+import { saveFiles, loadFiles, getPriceHistory } from '../utils/db';
 
 const TonerContext = createContext();
 
@@ -7,10 +7,29 @@ export const TonerProvider = ({ children }) => {
   const [activeFiles, setActiveFiles] = useState(null);
   const [cart, setCart] = useState(() => JSON.parse(localStorage.getItem('toner-cart')) || {});
   const [favorites, setFavorites] = useState(() => JSON.parse(localStorage.getItem('toner-favorites')) || []);
+  const [priceHistory, setPriceHistory] = useState({});
 
   useEffect(() => {
     loadFiles().then(setActiveFiles);
   }, []);
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      if (favorites.length === 0) {
+        setPriceHistory({});
+        return;
+      }
+      const historyMap = {};
+      for (const id of favorites) {
+        const records = await getPriceHistory(id);
+        if (records && records.length > 0) {
+          historyMap[id] = { records };
+        }
+      }
+      setPriceHistory(historyMap);
+    };
+    fetchHistory();
+  }, [favorites]);
 
   useEffect(() => {
     localStorage.setItem('toner-cart', JSON.stringify(cart));
@@ -38,7 +57,7 @@ export const TonerProvider = ({ children }) => {
     }));
   };
 
-  const value = { activeFiles, setActiveFiles, cart, setCart, favorites, setFavorites, toggleFavorite, addToCart, updateCart };
+  const value = { activeFiles, setActiveFiles, cart, setCart, favorites, setFavorites, toggleFavorite, addToCart, updateCart, priceHistory };
   return <TonerContext.Provider value={value}>{children}</TonerContext.Provider>;
 };
 
