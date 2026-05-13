@@ -31,20 +31,12 @@ const MappingWizardHeader = ({
         <div className="profile-input-group">
           <input 
             type="text" 
-            placeholder="Nome da Empresa" 
+            placeholder="Nome da Empresa (opcional para salvar perfil)" 
             value={companyName} 
             onChange={(e) => setCompanyName(e.target.value)}
             className="pill"
-            style={{ minWidth: '200px' }}
+            style={{ minWidth: '250px' }}
           />
-          <button 
-            onClick={onSaveProfile} 
-            className="pill success" 
-            title="Guardar Perfil"
-            disabled={!companyName}
-          >
-            <Save size={16} />
-          </button>
         </div>
 
         {profiles.length > 0 && (

@@ -57,7 +57,7 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
 
   const canFinalize = selections.ref.start && selections.name.start && selections.price.start;
 
-  const handleFinalize = () => {
+  const handleFinalize = async () => {
     if (!canFinalize) return;
 
     const allStarts = [selections.ref.start?.r, selections.name.start?.r, selections.price.start?.r];
@@ -70,6 +70,11 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
       startRow: Math.min(...allStarts.filter(r => r != null)),
       endRow: allEnds.some(e => e != null) ? Math.max(...allEnds.filter(e => e != null)) : null
     };
+
+    // Salvar perfil automaticamente se houver nome definido
+    if (companyName.trim()) {
+      await handleSaveProfile();
+    }
 
     onConfirm(mapping, filteredData);
   };
