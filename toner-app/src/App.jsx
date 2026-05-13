@@ -9,7 +9,7 @@ import { useToner } from './context/TonerContext';
 import { useProductComparison } from './hooks/useProductComparison';
 
 const App = () => {
-  const { activeFiles, setActiveFiles, cart, favorites, toggleFavorite, addToCart, updateCart } = useToner();
+  const { activeFiles, setActiveFiles, cart, favorites, toggleFavorite, addToCart, updateCart, priceHistory } = useToner();
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [showMapper, setShowMapper] = useState(null);
@@ -21,7 +21,7 @@ const App = () => {
     return () => clearTimeout(handler);
   }, [searchTerm]);
 
-  const comparisonData = useProductComparison(activeFiles, debouncedSearch, favorites);
+  const comparisonData = useProductComparison(activeFiles, debouncedSearch, favorites, priceHistory);
 
   const handleFileDrop = async (event) => {
     const file = event.target.files[0];
