@@ -14,21 +14,35 @@ export const TonerProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
+    let ignore = false;
     const fetchHistory = async () => {
       if (favorites.length === 0) {
         setPriceHistory({});
         return;
       }
+
+      const histories = await Promise.all(
+        favorites.map(async (id) => {
+          const records = await getPriceHistory(id);
+          return { id, records };
+        })
+      );
+
+      if (ignore) return;
+
       const historyMap = {};
-      for (const id of favorites) {
-        const records = await getPriceHistory(id);
+      histories.forEach(({ id, records }) => {
         if (records && records.length > 0) {
           historyMap[id] = { records };
         }
-      }
+      });
       setPriceHistory(historyMap);
     };
+
     fetchHistory();
+    return () => {
+      ignore = true;
+    };
   }, [favorites]);
 
   useEffect(() => {
