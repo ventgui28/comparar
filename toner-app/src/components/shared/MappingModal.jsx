@@ -33,7 +33,6 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
   };
 
   const handleCellClick = (rowIndex, colIndex) => {
-    // 1. Toggle/Undo Logic
     const activeSlotData = selections[activeSlot];
     if ((activeSlotData.start?.r === rowIndex && activeSlotData.start?.c === colIndex) || 
         (activeSlotData.end?.r === rowIndex && activeSlotData.end?.c === colIndex)) {
@@ -41,11 +40,9 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
       return;
     }
 
-    // 2. Automatic Category Switching
     const slots = ['ref', 'name', 'price'];
     const currentSlotIndex = slots.indexOf(activeSlot);
     
-    // Check if clicked column is already used by a DIFFERENT slot
     const occupiedSlot = slots.find(s => s !== activeSlot && selections[s].start?.c === colIndex);
     
     if (occupiedSlot) {
@@ -53,7 +50,6 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
       return;
     }
 
-    // If current slot has a start, but clicked column is different, switch to next slot
     if (selections[activeSlot].start && selections[activeSlot].start.c !== colIndex) {
       const nextSlot = slots[currentSlotIndex + 1];
       if (nextSlot) {
@@ -61,8 +57,6 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
       }
     }
 
-    // 3. Selection Logic (Assign to activeSlot)
-    // Note: use functional update for activeSlot if needed based on updated state
     const targetSlot = (selections[activeSlot].start && selections[activeSlot].start.c !== colIndex) 
       ? (slots[currentSlotIndex + 1] || activeSlot) 
       : activeSlot;
@@ -76,7 +70,6 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
   };
 
   const getCellClass = (r, c) => {
-    // 1. Identify which slot this cell belongs to (if any)
     const slot = ['ref', 'name', 'price'].find(s => 
       (selections[s].start?.r === r && selections[s].start?.c === c) ||
       (selections[s].end?.r === r && selections[s].end?.c === c)
@@ -86,7 +79,6 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
       return `cell-selected ${slot}`;
     }
 
-    // 2. Range highlights (Only if not a marker)
     const checkRange = (s, className) => {
       if (selections[s].start && c === selections[s].start.c && r >= selections[s].start.r) {
         if (!selections[s].end || r <= selections[s].end.r) return className;
@@ -106,7 +98,6 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
   const handleFinalize = () => {
     if (!canFinalize) return;
 
-    // We must ensure that startRow and endRow are derived from the overall selection set
     const allStarts = [selections.ref.start?.r, selections.name.start?.r, selections.price.start?.r];
     const allEnds = [selections.ref.end?.r, selections.name.end?.r, selections.price.end?.r];
 
@@ -115,7 +106,6 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
       desc: selections.name.start.c,
       price: selections.price.start.c,
       startRow: Math.min(...allStarts.filter(r => r != null)),
-      // Only set endRow if at least one column has an end row defined
       endRow: allEnds.some(e => e != null) ? Math.max(...allEnds.filter(e => e != null)) : null
     };
 

@@ -110,7 +110,7 @@ describe('useProductComparison', () => {
 
     expect(result.current.length).toBeGreaterThan(0);
     expect(result.current[0].trend).not.toBeNull();
-    expect(result.current[0].trend.type).toBe('min'); // 9 < 10
-    expect(result.current[0].trend.percent).toBeCloseTo(-10); // (9-10)/10 = -0.1
+    expect(result.current[0].trend.type).toBe('min');
+    expect(result.current[0].trend.percent).toBeCloseTo(-10);
   });
 });

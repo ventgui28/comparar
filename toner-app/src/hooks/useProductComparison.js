@@ -39,7 +39,7 @@ export const useProductComparison = (activeFiles, debouncedSearch, favorites = [
     let results = Array.from(masterMap.values()).map(item => {
       const history = priceHistory[item.id];
       const prices = Object.values(item.prices);
-      const currentPrice = Math.min(...prices); // Best current price
+      const currentPrice = Math.min(...prices);
       const trend = calculateTrend(currentPrice, history);
       return { ...item, trend };
     });

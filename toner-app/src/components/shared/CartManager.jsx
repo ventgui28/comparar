@@ -30,8 +30,6 @@ export const CartManager = ({ cart, products, activeFiles, isOpen, onClose, onUp
       }
     });
 
-    // Create a sheet for every active file, even if empty (optional, but cleaner)
-    // Or just for shops that have items:
     Object.entries(grouped).forEach(([shopId, items]) => {
       const file = activeFiles.find(f => String(f.id) === String(shopId));
       const ws = XLSX.utils.json_to_sheet(items);

@@ -2,7 +2,6 @@ import { describe, test, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import ComparisonTable from './Table/ComparisonTable';
 
-// Mock data
 const comparisonData = [{
     id: 'prod1',
     desc: 'Toner Preto X',
@@ -14,7 +13,6 @@ const activeFiles = [{ id: 'f1', name: 'File 1' }, { id: 'f2', name: 'File 2' }]
 
 describe('ComparisonTable', () => {
   test('renders favorite star column and toggles state', () => {
-      // This will fail currently as the column doesn't exist
       render(<ComparisonTable 
           comparisonData={comparisonData} 
           activeFiles={activeFiles} 

@@ -57,10 +57,8 @@ export const TonerProvider = ({ children }) => {
       return isNowFavorite ? [...prev, productId] : prev.filter(id => id !== productId);
     });
 
-    // Side-effect outside of state updater
     const isAdding = !favorites.includes(productId);
     if (isAdding && activeFiles) {
-      // Find the best price across all files for this product
       let bestPrice = Infinity;
       activeFiles.forEach(file => {
         const item = file.data.find(d => {
