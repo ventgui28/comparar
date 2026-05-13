@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Trash2 } from 'lucide-react';
+import PriceHistoryModal from '../shared/PriceHistoryModal';
 
 const PriceDisplay = ({ price, isBest }) => (
   <td className={isBest ? 'price-best' : 'price-normal'}>
@@ -15,6 +16,7 @@ const PriceDisplay = ({ price, isBest }) => (
 
 const ComparisonTable = ({ comparisonData, activeFiles, onAddToCart, favorites, onToggleFavorite }) => {
   const [expandedRows, setExpandedRows] = useState(new Set());
+  const [showHistory, setShowHistory] = useState(null);
 
   const toggleRow = (id) => {
     setExpandedRows(prev => {
@@ -26,10 +28,12 @@ const ComparisonTable = ({ comparisonData, activeFiles, onAddToCart, favorites, 
   };
 
   return (
+    <>
     <table className="pro-table">
       <thead>
         <tr>
           <th width="40">Favorito</th>
+          <th width="40">Histórico</th>
           <th width="120">Carrinho</th>
           <th>Descrição do Produto</th>
           <th width="150">Ref. Melhor Preço</th>
@@ -55,6 +59,13 @@ const ComparisonTable = ({ comparisonData, activeFiles, onAddToCart, favorites, 
                   <button onClick={() => onToggleFavorite(item.id)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
                     {isFavorite ? '⭐' : '☆'}
                   </button>
+                </td>
+                <td style={{ textAlign: 'center' }}>
+                  {isFavorite && (
+                    <button onClick={() => setShowHistory(item)} style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: '1rem' }}>
+                      📈
+                    </button>
+                  )}
                 </td>
                 <td style={{ width: '120px', textAlign: 'center' }}>
                   <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
@@ -97,7 +108,7 @@ const ComparisonTable = ({ comparisonData, activeFiles, onAddToCart, favorites, 
               </tr>
               {isExpanded && (
                 <tr className="row-details">
-                  <td colSpan={activeFiles.length + 5}>
+                  <td colSpan={activeFiles.length + 6}>
                     <div className="details-content animate-in">
                       {isFavorite && (
                         <div className="analytics-cards" style={{ marginTop: '10px', display: 'flex', gap: '15px', marginBottom: '10px' }}>
@@ -126,6 +137,14 @@ const ComparisonTable = ({ comparisonData, activeFiles, onAddToCart, favorites, 
         })}
       </tbody>
     </table>
+    {showHistory && (
+        <PriceHistoryModal 
+            productId={showHistory.id} 
+            productName={showHistory.desc} 
+            onClose={() => setShowHistory(null)} 
+        />
+    )}
+    </>
   );
 };
 
