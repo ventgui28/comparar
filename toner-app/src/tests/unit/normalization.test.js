@@ -1,7 +1,38 @@
 import { describe, it, expect } from 'vitest';
 import { normalizeDescription, normalizeReference, getProductKey } from '../../utils/normalization';
+import { parsePrice } from '../../utils/excelParser';
 
 describe('normalization utilities', () => {
+  describe('parsePrice', () => {
+    it('should handle numbers', () => {
+      expect(parsePrice(10.5)).toBe(10.5);
+      expect(parsePrice(0)).toBe(0);
+    });
+
+    it('should handle empty values', () => {
+      expect(parsePrice('')).toBe(0);
+      expect(parsePrice(null)).toBe(0);
+      expect(parsePrice(undefined)).toBe(0);
+    });
+
+    it('should handle European format (1.234,56)', () => {
+      expect(parsePrice('1.234,56')).toBe(1234.56);
+    });
+
+    it('should handle simple comma format (1234,56)', () => {
+      expect(parsePrice('1234,56')).toBe(1234.56);
+    });
+
+    it('should handle standard dot format (1234.56)', () => {
+      expect(parsePrice('1234.56')).toBe(1234.56);
+    });
+
+    it('should remove currency symbols', () => {
+      expect(parsePrice('€ 1.234,56')).toBe(1234.56);
+      expect(parsePrice('123,45€')).toBe(123.45);
+    });
+  });
+
   describe('normalizeDescription', () => {
     it('should lowercase text', () => {
       expect(normalizeDescription('HELLO WORLD')).toBe('hello world');

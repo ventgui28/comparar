@@ -6,21 +6,22 @@ const JUNK_KEYWORDS = [
   'referência', 'descrição', 'quant.', 'preço un.', 'subtotal'
 ];
 
+const NON_PRICE_CHARS_REGEX = /[^\d.,]/g;
+const ALL_DOTS_REGEX = /\./g;
+const HEADER_THRESHOLD_ROWS = 20;
+
 /**
  * Filtro inteligente para validar se uma linha é útil.
  * @param {Array} row - Valores da linha.
  * @param {boolean} isHeaderPhase - Se estamos nas primeiras linhas (cabeçalho).
  */
 const isValidRow = (row, isHeaderPhase) => {
-  const hasData = row.some(val => val !== "" && val !== null && val !== undefined);
-  const isJunk = row.some(val => JUNK_KEYWORDS.some(kw => String(val).toLowerCase().includes(kw)));
-  const hasPriceLikeNumber = row.some(val => typeof val === 'number' && val > 0 && val < 10000);
+  const isNotEmpty = row.some(val => val !== "" && val !== null && val !== undefined);
+  const containsJunk = row.some(val => JUNK_KEYWORDS.some(kw => String(val).toLowerCase().includes(kw)));
+  const containsPrice = row.some(val => typeof val === 'number' && val > 0 && val < 10000);
   
-  if (!hasData || isJunk) return false;
-  return hasPriceLikeNumber || isHeaderPhase;
+  return isNotEmpty && !containsJunk && (containsPrice || isHeaderPhase);
 };
-
-const HEADER_THRESHOLD_ROWS = 20;
 
 export const readRawExcel = (file) => {
   return new Promise((resolve, reject) => {
@@ -79,7 +80,6 @@ export const parseWithMapping = (rows, mapping, fileName) => {
   const products = [];
   const { ref: refCol, desc: descCol, price: priceCol, startRow, endRow } = mapping;
 
-  // Se endRow for nulo, processamos até o fim das linhas visíveis
   const limit = (endRow !== null && endRow !== undefined) ? Math.min(rows.length, endRow + 1) : rows.length;
 
   for (let i = startRow; i < limit; i++) {
@@ -97,12 +97,28 @@ export const parseWithMapping = (rows, mapping, fileName) => {
   return products;
 };
 
-const parsePrice = (val) => {
+/**
+ * Normaliza valores de preço de strings ou números.
+ * Suporta formatos 1.234,56 e 1234,56.
+ */
+export const parsePrice = (val) => {
   if (val === undefined || val === null || val === "") return 0;
   if (typeof val === 'number') return val;
-  let s = String(val).trim().replace(/[^\d.,]/g, ''); 
-  if (s.includes(',') && s.includes('.')) s = s.replace(/\./g, '').replace(',', '.');
-  else if (s.includes(',')) s = s.replace(',', '.');
-  const parsed = parseFloat(s.replace(/[^\d.]/g, ''));
-  return isNaN(parsed) ? 0 : parsed;
+
+  const sanitized = String(val).trim().replace(NON_PRICE_CHARS_REGEX, '');
+  
+  const hasComma = sanitized.includes(',');
+  const hasDot = sanitized.includes('.');
+
+  let normalized = sanitized;
+  if (hasComma && hasDot) {
+    // Formato Europeu: 1.234,56 -> 1234.56
+    normalized = sanitized.replace(ALL_DOTS_REGEX, '').replace(',', '.');
+  } else if (hasComma) {
+    // Formato Simples: 1234,56 -> 1234.56
+    normalized = sanitized.replace(',', '.');
+  }
+
+  const result = parseFloat(normalized);
+  return isNaN(result) ? 0 : result;
 };
