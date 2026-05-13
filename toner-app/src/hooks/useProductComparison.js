@@ -24,7 +24,7 @@ export const useProductComparison = (activeFiles, debouncedSearch, favorites = [
 
     activeFiles.forEach(file => {
       file.data.forEach(item => {
-        const matchesRef = item.ref.toLowerCase().includes(s);
+        const matchesRef = item.ref && item.ref.toLowerCase().includes(s);
         const matchesDesc = item.desc && item.desc.toLowerCase().includes(s);
         
         if (isSearchEmpty || matchesRef || matchesDesc) {

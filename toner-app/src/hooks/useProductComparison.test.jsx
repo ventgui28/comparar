@@ -71,4 +71,21 @@ describe('useProductComparison', () => {
     expect(result.current.length).toBe(1);
     expect(result.current[0].id).toBe('cf217a');
   });
+
+  it('should not crash if reference is null', () => {
+    const activeFiles = [
+      {
+        id: 'file1',
+        name: 'File 1',
+        data: [
+          { ref: null, desc: 'Toner with null ref', price: 10, rowIdx: 1 }
+        ]
+      }
+    ];
+
+    const { result } = renderHook(() => useProductComparison(activeFiles, 'toner'));
+
+    expect(result.current.length).toBe(1);
+    expect(result.current[0].desc).toBe('Toner with null ref');
+  });
 });
