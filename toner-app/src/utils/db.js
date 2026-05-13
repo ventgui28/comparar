@@ -31,7 +31,21 @@ export const savePriceHistory = async (prodId, price, favorites) => {
   const store = tx.store;
   const history = (await store.get(prodId)) || { id: prodId, records: [] };
   
-  history.records.push({ price, date: new Date().toISOString() });
+  const now = new Date();
+  const today = now.toISOString().split('T')[0];
+  
+  // Prevent duplicate: same price on the same day
+  const isDuplicate = history.records.some(r => {
+    const recordDate = r.date.split('T')[0];
+    return recordDate === today && Math.abs(r.price - price) < 0.001;
+  });
+
+  if (isDuplicate) {
+    await tx.done;
+    return;
+  }
+
+  history.records.push({ price, date: now.toISOString() });
   
   if (history.records.length > 50) {
     history.records.shift(); 
