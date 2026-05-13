@@ -58,6 +58,18 @@ describe('useMappingState', () => {
     expect(result.current.selections.ref.start).toEqual({ r: 1, c: 0 });
   });
 
+  it('deve detetar perfil com diferentes capitalizações e posições no nome do ficheiro', async () => {
+    const mockProfiles = [{ name: 'JMBento', mapping: { ref: { start: { r: 1, c: 1 }, end: null }, name: { start: null, end: null }, price: { start: null, end: null } } }];
+    db.getProfiles.mockResolvedValue(mockProfiles);
+
+    const { result } = renderHook(() => useMappingState(sheetNames, sheetsData, 'tabela_jmbento_maio_2026.xlsx'));
+
+    await waitFor(() => {
+      expect(result.current.companyName).toBe('JMBento');
+    });
+    expect(result.current.selections.ref.start).toEqual({ r: 1, c: 1 });
+  });
+
   it('deve eliminar perfil e atualizar estado', async () => {
     const mockProfiles = [{ name: 'FORNECEDOR_A', mapping: {} }];
     db.getProfiles.mockResolvedValueOnce(mockProfiles).mockResolvedValueOnce([]);
@@ -150,5 +162,25 @@ describe('useMappingState', () => {
     });
 
     expect(result.current.selections.ref.start).toBeNull();
+  });
+
+  it('deve selecionar um perfil manualmente e aplicar o mapeamento', async () => {
+    const mockProfiles = [
+      { name: 'FORNECEDOR_B', mapping: { ref: { start: { r: 5, c: 5 }, end: null }, name: { start: null, end: null }, price: { start: null, end: null } } }
+    ];
+    db.getProfiles.mockResolvedValue(mockProfiles);
+
+    const { result } = renderHook(() => useMappingState(sheetNames, sheetsData, 'unknown.xlsx'));
+
+    await waitFor(() => {
+      expect(result.current.profiles).toEqual(mockProfiles);
+    });
+
+    act(() => {
+      result.current.handleProfileSelect('FORNECEDOR_B');
+    });
+
+    expect(result.current.companyName).toBe('FORNECEDOR_B');
+    expect(result.current.selections.ref.start).toEqual({ r: 5, c: 5 });
   });
 });
