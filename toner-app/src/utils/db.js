@@ -34,20 +34,16 @@ export const savePriceHistory = async (prodId, price, favorites) => {
   const now = new Date();
   const today = now.toISOString().split('T')[0];
   
-  // Find record for today
   const todayIdx = history.records.findIndex(r => r.date.split('T')[0] === today);
 
   if (todayIdx > -1) {
-    // Only update if the new price is LOWER than the existing record for today
     if (price < history.records[todayIdx].price - 0.001) {
       history.records[todayIdx] = { price, date: now.toISOString() };
     } else {
-      // Current or higher price found, skip update
       await tx.done;
       return;
     }
   } else {
-    // New record for a new day
     history.records.push({ price, date: now.toISOString() });
   }
   

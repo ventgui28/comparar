@@ -85,7 +85,7 @@ export const parseWithMapping = (rows, mapping, fileName) => {
   const products = [];
   const { ref: refCol, desc: descCol, price: priceCol, startRow, endRow } = mapping;
 
-  // If endRow is null, we process until the end of the visible array
+  // Se endRow for nulo, processamos até o fim das linhas visíveis
   const limit = (endRow !== null && endRow !== undefined) ? Math.min(rows.length, endRow + 1) : rows.length;
 
   for (let i = startRow; i < limit; i++) {
