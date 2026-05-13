@@ -47,10 +47,10 @@ describe('Histórico de Preços (db.js)', () => {
       })
     );
     
-    // Verifica se removeu o mais antigo (shift)
+    // Verifica se removeu o mais antigo (deslocamento)
     const savedRecords = mockDb.transaction().store.put.mock.calls[0][0].records;
     expect(savedRecords.length).toBe(50);
-    expect(savedRecords[0].price).toBe(10); // O primeiro (antigo) foi mantido se eram 50, o novo empurrou
+    expect(savedRecords[0].price).toBe(10); // Mantém o limite de 50, removendo o mais antigo se necessário
     expect(savedRecords[49].price).toBe(20);
   });
 });

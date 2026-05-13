@@ -23,7 +23,6 @@ describe('useProductComparison', () => {
 
     const { result } = renderHook(() => useProductComparison(activeFiles, ''));
 
-    // Should have 1 grouped product because CF217A and CF 217-A normalize to cf217a
     expect(result.current.length).toBe(1);
     expect(result.current[0].id).toBe('cf217a');
     expect(result.current[0].prices['file1']).toBe(10);
