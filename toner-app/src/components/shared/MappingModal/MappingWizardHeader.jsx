@@ -12,12 +12,13 @@ const MappingWizardHeader = ({
   setCompanyName,
   onSaveProfile,
   onDeleteProfile,
+  onProfileSelect,
   profiles
 }) => {
   const handleProfileSelect = (e) => {
     const selectedName = e.target.value;
     if (selectedName) {
-      setCompanyName(selectedName);
+      onProfileSelect(selectedName);
     }
   };
 

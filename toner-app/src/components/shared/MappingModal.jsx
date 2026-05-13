@@ -4,8 +4,8 @@ import useMappingState from '../../hooks/useMappingState';
 import MappingWizardHeader from './MappingModal/MappingWizardHeader';
 import MappingPreviewTable from './MappingModal/MappingPreviewTable';
 
-const MappingModal = ({ excelBundle, onConfirm, onCancel }) => {
-  const { sheetNames, sheetsData, fileName } = excelBundle;
+const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
+  const { sheetNames, sheetsData } = excelBundle;
   const {
     selectedSheet,
     activeSlot,
@@ -21,7 +21,8 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel }) => {
     setCompanyName,
     profiles,
     handleDeleteProfile,
-    handleSaveProfile
+    handleSaveProfile,
+    handleProfileSelect
   } = useMappingState(sheetNames, sheetsData, fileName);
 
   const [showRaw, setShowRaw] = useState(false);
@@ -88,6 +89,7 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel }) => {
           setCompanyName={setCompanyName}
           onSaveProfile={handleSaveProfile}
           onDeleteProfile={handleDeleteProfile}
+          onProfileSelect={handleProfileSelect}
           profiles={profiles}
         />
 

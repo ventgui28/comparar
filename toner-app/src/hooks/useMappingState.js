@@ -42,6 +42,16 @@ export const useMappingState = (sheetNames, sheetsData, fileName) => {
     }
   }, [companyName]);
 
+  const handleProfileSelect = useCallback((name) => {
+    const profile = profiles.find(p => p.name === name);
+    if (profile) {
+      setCompanyName(profile.name);
+      setSelections(profile.mapping);
+    } else {
+      setCompanyName(name);
+    }
+  }, [profiles]);
+
   const handleSaveProfile = useCallback(async () => {
     if (!companyName) return;
     const profile = {
@@ -138,7 +148,8 @@ export const useMappingState = (sheetNames, sheetsData, fileName) => {
     setCompanyName,
     profiles,
     handleDeleteProfile,
-    handleSaveProfile
+    handleSaveProfile,
+    handleProfileSelect
   };
 };
 
