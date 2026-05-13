@@ -83,7 +83,7 @@ const ComparisonTable = ({ comparisonData, activeFiles, onAddToCart, favorites, 
                       id={`qty-${item.id}`}
                     />
                     <button 
-                      onClick={() => onAddToCart(item.id, document.getElementById(`qty-${item.id}`).value)}
+                      onClick={() => onAddToCart(item.id, document.getElementById(`qty-${item.id}`).value, bestFileId)}
                       className="btn-add-cart"
                     >
                       +

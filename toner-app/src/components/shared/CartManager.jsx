@@ -49,15 +49,27 @@ export const CartManager = ({ cart, products, activeFiles, isOpen, onClose, onUp
         <h3>Carrinho ({Object.keys(cart).length} itens)</h3>
         <p>Poupança Total: {totalSavings.toFixed(2)}€</p>
         <ul className="cart-list">
-          {Object.entries(cart).map(([prodId, { qty }]) => {
+          {Object.entries(cart).map(([prodId, { qty, shopId }]) => {
             const prod = products.find(p => p.id === prodId);
+            const price = prod?.prices[shopId] || 0;
             return (
-              <li key={prodId} style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                {prod?.desc} - Qtd: {qty}
-                <button onClick={() => onUpdateCart(prodId, qty - 1)}>-</button>
-                <button onClick={() => onUpdateCart(prodId, qty + 1)}>+</button>
-                <button onClick={() => onUpdateCart(prodId, 0)}>Remover</button>
-              </li>            );
+              <li key={prodId} style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #f4f4f5' }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 600 }}>{prod?.desc}</div>
+                  <div style={{ fontSize: '0.8rem', color: '#71717a' }}>
+                    {price.toFixed(2)}€ x {qty} = <strong>{(price * qty).toFixed(2)}€</strong>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                  <button onClick={() => onUpdateCart(prodId, qty - 1)} className="btn-qty">-</button>
+                  <span style={{ minWidth: '20px', textAlign: 'center' }}>{qty}</span>
+                  <button onClick={() => onUpdateCart(prodId, qty + 1)} className="btn-qty">+</button>
+                  <button onClick={() => onUpdateCart(prodId, 0)} style={{ color: '#ef4444', border: 'none', background: 'none', cursor: 'pointer', padding: '4px' }}>
+                    Remover
+                  </button>
+                </div>
+              </li>
+            );
           })}
         </ul>
         <button onClick={exportCart} className="btn-primary">Exportar Excel</button>
