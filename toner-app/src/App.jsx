@@ -7,6 +7,7 @@ import ComparisonTable from './components/Table/ComparisonTable';
 import { CartManager } from './components/shared/CartManager';
 import { useToner } from './context/TonerContext';
 import { useProductComparison } from './hooks/useProductComparison';
+import { getProductKey } from './utils/normalization';
 
 const App = () => {
   const { activeFiles, setActiveFiles, cart, favorites, toggleFavorite, addToCart, updateCart, priceHistory } = useToner();
@@ -39,13 +40,9 @@ const App = () => {
   const handleMappingConfirm = (mapping, rows) => {
     const parsed = parseWithMapping(rows, mapping, showMapper.fileName);
     
-    // Normalization helper (matches useProductComparison.js)
-    const normalizeRef = (ref) => ref ? ref.toLowerCase().replace(/[^a-z0-9]/g, '').trim() : '';
-    const normalizeDesc = (text) => text ? text.toLowerCase().replace(/\(.*\)/g, '').replace(/\s+/g, ' ').trim() : '';
-
     // Save history for favorites automatically
     parsed.forEach(item => {
-      const key = normalizeRef(item.ref) || normalizeDesc(item.desc);
+      const key = getProductKey(item);
       savePriceHistory(key, item.price, favorites);
     });
 
@@ -65,7 +62,7 @@ const App = () => {
   const handleDeleteProduct = (productId) => {
     setActiveFiles(prev => prev.map(f => ({
       ...f,
-      data: f.data.filter(d => (d.desc.trim().toLowerCase() || d.ref.trim().toLowerCase()) !== productId)
+      data: f.data.filter(d => getProductKey(d) !== productId)
     })));
   };
 

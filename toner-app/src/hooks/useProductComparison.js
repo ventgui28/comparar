@@ -1,19 +1,6 @@
 import { useMemo } from 'react';
 import { calculateTrend } from '../utils/stats/priceTrend';
-
-const normalizeDescription = (text) => {
-  if (!text) return '';
-  return text
-    .toLowerCase()
-    .replace(/\(.*\)/g, '') // remove parenthetical content
-    .replace(/\s+/g, ' ')   // normalize spaces
-    .trim();
-};
-
-const normalizeReference = (ref) => {
-  if (!ref) return '';
-  return ref.toLowerCase().replace(/[^a-z0-9]/g, '').trim();
-};
+import { normalizeReference, normalizeDescription, getProductKey } from '../utils/normalization';
 
 export const useProductComparison = (activeFiles, debouncedSearch, favorites = [], priceHistory = {}) => {
   return useMemo(() => {
@@ -29,9 +16,7 @@ export const useProductComparison = (activeFiles, debouncedSearch, favorites = [
         const matchesDesc = item.desc && item.desc.toLowerCase().includes(s);
         
         if (isSearchEmpty || matchesRef || matchesDesc) {
-          const normalizedRef = normalizeReference(item.ref);
-          const normalizedDesc = normalizeDescription(item.desc);
-          const key = normalizedRef || normalizedDesc; // Prioridade à referência normalizada
+          const key = getProductKey(item);
           
           if (!masterMap.has(key)) {
             masterMap.set(key, { 
