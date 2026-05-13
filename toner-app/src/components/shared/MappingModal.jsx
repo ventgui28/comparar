@@ -179,7 +179,6 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
                       className="row-number-btn"
                       style={{ position: 'sticky', left: 0, zIndex: 5, background: '#f8fafc', fontWeight: 800, cursor: 'pointer' }}
                     >
-                      <Trash2 size={12} style={{ marginRight: '4px' }} />
                       {row.__rowIdx}
                     </td>
                     {colIndices.map(cIdx => (
