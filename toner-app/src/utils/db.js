@@ -5,29 +5,38 @@ const ACTIVE_FILES_STORE = 'activeFiles';
 const PRICE_HISTORY_STORE = 'priceHistory';
 
 export const initDB = async () => {
-  console.log('db.js: initDB executing...');
-  const db = await openDB(DB_NAME, 2, {
+  return openDB(DB_NAME, 2, {
     upgrade(db) {
-      console.log('db.js: upgrade starting');
       if (!db.objectStoreNames.contains(ACTIVE_FILES_STORE)) {
         db.createObjectStore(ACTIVE_FILES_STORE, { keyPath: 'id' });
       }
       if (!db.objectStoreNames.contains(PRICE_HISTORY_STORE)) {
         db.createObjectStore(PRICE_HISTORY_STORE, { keyPath: 'id' });
       }
-      console.log('db.js: upgrade done');
     },
   });
-  console.log('db.js: initDB open complete');
-  return db;
 };
 
-export const savePriceHistory = async (prodId, price, shopId) => {
+export const getPriceHistory = async (prodId) => {
+  const db = await initDB();
+  const history = await db.get(PRICE_HISTORY_STORE, prodId);
+  return history ? history.records : [];
+};
+
+export const savePriceHistory = async (prodId, price, favorites) => {
+  if (!favorites || !favorites.includes(prodId)) return;
+
   const db = await initDB();
   const tx = db.transaction(PRICE_HISTORY_STORE, 'readwrite');
   const store = tx.store;
   const history = (await store.get(prodId)) || { id: prodId, records: [] };
-  history.records.push({ price, shopId, date: new Date().toISOString() });
+  
+  history.records.push({ price, date: new Date().toISOString() });
+  
+  if (history.records.length > 50) {
+    history.records.shift(); 
+  }
+  
   await store.put(history);
   await tx.done;
 };
@@ -39,14 +48,10 @@ export const saveFiles = async (files) => {
   for (const file of files) {
     await tx.store.add(file);
   }
-  await tx.done; // Property, not function
+  await tx.done;
 };
 
 export const loadFiles = async () => {
-  console.log('db.js: loadFiles start');
   const db = await initDB();
-  console.log('db.js: initDB done');
-  const result = await db.getAll(ACTIVE_FILES_STORE);
-  console.log('db.js: loadFiles result:', result);
-  return result;
+  return db.getAll(ACTIVE_FILES_STORE);
 };
