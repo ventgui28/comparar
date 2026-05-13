@@ -6,6 +6,20 @@ const JUNK_KEYWORDS = [
   'referência', 'descrição', 'quant.', 'preço un.', 'subtotal'
 ];
 
+/**
+ * Filtro inteligente para validar se uma linha é útil.
+ * @param {Array} row - Valores da linha.
+ * @param {boolean} isHeaderPhase - Se estamos nas primeiras linhas (cabeçalho).
+ */
+const isValidRow = (row, isHeaderPhase) => {
+  const hasData = row.some(val => val !== "" && val !== null && val !== undefined);
+  const isJunk = row.some(val => JUNK_KEYWORDS.some(kw => String(val).toLowerCase().includes(kw)));
+  const hasPriceLikeNumber = row.some(val => typeof val === 'number' && val > 0 && val < 10000);
+  
+  if (!hasData || isJunk) return false;
+  return hasPriceLikeNumber || isHeaderPhase;
+};
+
 export const readRawExcel = (file) => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -20,55 +34,33 @@ export const readRawExcel = (file) => {
         
         workbook.SheetNames.forEach((name, idx) => {
           const isSheetHidden = sheetProps[idx] && sheetProps[idx].Hidden && sheetProps[idx].Hidden !== 0;
+          if (isSheetHidden) return;
+
+          visibleSheetNames.push(name);
+          const worksheet = workbook.Sheets[name];
+          const rowsMeta = worksheet['!rows'] || [];
+          const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:Z5000');
           
-          if (!isSheetHidden) {
-            visibleSheetNames.push(name);
-            const worksheet = workbook.Sheets[name];
-            const rowsMeta = worksheet['!rows'] || [];
-            const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:Z5000');
-            
-            const visibleRows = [];
-            for (let R = range.s.r; R <= range.e.r; ++R) {
-              const meta = rowsMeta[R];
-              const isRowHidden = meta && (meta.hidden === true || meta.hpt === 0 || meta.hpx === 0);
-              
-              if (!isRowHidden) {
-                const row = [];
-                let hasData = false;
-                let hasPriceLikeNumber = false;
-                let isJunk = false;
+          const visibleRows = [];
+          for (let R = range.s.r; R <= range.e.r; ++R) {
+            const meta = rowsMeta[R];
+            const isRowHidden = meta && (meta.hidden === true || meta.hpt === 0 || meta.hpx === 0);
+            if (isRowHidden) continue;
 
-                for (let C = range.s.c; C <= range.e.c; ++C) {
-                  const cellRef = XLSX.utils.encode_cell({ r: R, c: C });
-                  const cell = worksheet[cellRef];
-                  const rawVal = cell ? cell.v : "";
-                  const val = String(rawVal).trim();
-                  
-                  if (val !== "") {
-                    hasData = true;
-                    if (JUNK_KEYWORDS.some(kw => val.toLowerCase().includes(kw))) isJunk = true;
-                    // Se encontrarmos algo que pareça um preço (número), marcamos a linha como útil
-                    if (typeof rawVal === 'number' && rawVal > 0 && rawVal < 10000) hasPriceLikeNumber = true;
-                  }
-                  row.push(val);
-                }
-
-                // FILTRO INTELIGENTE: 
-                // Só aceitamos a linha se:
-                // 1. Tiver dados
-                // 2. Não for uma linha de junk (cabeçalho/legenda)
-                // 3. Tiver pelo menos UM número que pareça um preço (ou se for a linha do cabeçalho da tabela)
-                if (hasData && !isJunk) {
-                  // Se a linha tem um número ou se estamos nas primeiras 20 linhas (para deixar ver o cabeçalho no preview)
-                  if (hasPriceLikeNumber || visibleRows.length < 20) {
-                    row.__rowIdx = R + 1;
-                    visibleRows.push(row);
-                  }
-                }
-              }
+            const row = [];
+            for (let C = range.s.c; C <= range.e.c; ++C) {
+              const cellRef = XLSX.utils.encode_cell({ r: R, c: C });
+              const cell = worksheet[cellRef];
+              row.push(cell ? cell.v : "");
             }
-            sheetsData[name] = visibleRows;
+
+            const isHeaderPhase = visibleRows.length < 20;
+            if (isValidRow(row, isHeaderPhase)) {
+              row.__rowIdx = R + 1;
+              visibleRows.push(row);
+            }
           }
+          sheetsData[name] = visibleRows;
         });
 
         resolve({ sheetNames: visibleSheetNames, sheetsData: sheetsData });
