@@ -5,7 +5,7 @@ import MappingWizardHeader from './MappingModal/MappingWizardHeader';
 import MappingPreviewTable from './MappingModal/MappingPreviewTable';
 
 const MappingModal = ({ excelBundle, onConfirm, onCancel }) => {
-  const { sheetNames, sheetsData } = excelBundle;
+  const { sheetNames, sheetsData, fileName } = excelBundle;
   const {
     selectedSheet,
     activeSlot,
@@ -17,7 +17,7 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel }) => {
     toggleIgnoreRow,
     handleCellClick,
     handleSheetChange
-  } = useMappingState(sheetNames, sheetsData);
+  } = useMappingState(sheetNames, sheetsData, fileName);
 
   const [showRaw, setShowRaw] = useState(false);
 

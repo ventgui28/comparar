@@ -16,8 +16,10 @@ export const useMappingState = (sheetNames, sheetsData, fileName) => {
   const [profiles, setProfiles] = useState([]);
 
   useEffect(() => {
+    let active = true;
     const load = async () => {
       const all = await getProfiles();
+      if (!active) return;
       setProfiles(all);
       if (fileName) {
         const match = all.find(p => fileName.toLowerCase().includes(p.name.toLowerCase()));
@@ -28,6 +30,7 @@ export const useMappingState = (sheetNames, sheetsData, fileName) => {
       }
     };
     load();
+    return () => { active = false; };
   }, [fileName]);
 
   const handleDeleteProfile = useCallback(async (name) => {
