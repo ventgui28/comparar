@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { savePriceHistory } from '../utils/db';
+import { savePriceHistory } from '../../utils/db';
 import { openDB } from 'idb';
 
 // Mock idb e a base de dados
