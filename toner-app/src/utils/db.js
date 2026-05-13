@@ -34,18 +34,22 @@ export const savePriceHistory = async (prodId, price, favorites) => {
   const now = new Date();
   const today = now.toISOString().split('T')[0];
   
-  // Prevent duplicate: same price on the same day
-  const isDuplicate = history.records.some(r => {
-    const recordDate = r.date.split('T')[0];
-    return recordDate === today && Math.abs(r.price - price) < 0.001;
-  });
+  // Find record for today
+  const todayIdx = history.records.findIndex(r => r.date.split('T')[0] === today);
 
-  if (isDuplicate) {
-    await tx.done;
-    return;
+  if (todayIdx > -1) {
+    // If we already have a price for today, only update if the new price is DIFFERENT
+    // (We could also choose to always keep the MIN of the day)
+    if (Math.abs(history.records[todayIdx].price - price) < 0.001) {
+      await tx.done;
+      return;
+    }
+    // Update existing record for today
+    history.records[todayIdx] = { price, date: now.toISOString() };
+  } else {
+    // New record for a new day
+    history.records.push({ price, date: now.toISOString() });
   }
-
-  history.records.push({ price, date: now.toISOString() });
   
   if (history.records.length > 50) {
     history.records.shift(); 
