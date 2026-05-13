@@ -52,9 +52,28 @@ export const TonerProvider = ({ children }) => {
   }, [cart, favorites, activeFiles]);
 
   const toggleFavorite = (productId) => {
-    setFavorites(prev => 
-      prev.includes(productId) ? prev.filter(id => id !== productId) : [...prev, productId]
-    );
+    setFavorites(prev => {
+      const isNowFavorite = !prev.includes(productId);
+      
+      // If adding to favorites, try to save current price to history immediately
+      if (isNowFavorite && activeFiles) {
+        // Find product in all active files to get current prices
+        activeFiles.forEach(file => {
+          const item = file.data.find(d => {
+            const normalizeRef = (ref) => ref ? ref.toLowerCase().replace(/[^a-z0-9]/g, '').trim() : '';
+            const normalizeDesc = (text) => text ? text.toLowerCase().replace(/\(.*\)/g, '').replace(/\s+/g, ' ').trim() : '';
+            const key = normalizeRef(d.ref) || normalizeDesc(d.desc);
+            return key === productId;
+          });
+          
+          if (item) {
+            savePriceHistory(productId, item.price, [productId]); // Pass [productId] to bypass the "is it favorite" check
+          }
+        });
+      }
+      
+      return isNowFavorite ? [...prev, productId] : prev.filter(id => id !== productId);
+    });
   };
 
   const addToCart = (productId, qty, shopId) => {
