@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, Upload, X } from 'lucide-react';
 import MappingModal from './components/shared/MappingModal';
 import ComparisonTable from './components/Table/ComparisonTable';
@@ -156,7 +156,7 @@ const App = () => {
 
       {showMapper && (
         <MappingModal 
-          key={`${showMapper.fileName}-${Date.now()}`}
+          key={showMapper.fileName}
           fileName={showMapper.fileName}
           excelBundle={showMapper.excelBundle}
           onConfirm={handleMappingConfirm}

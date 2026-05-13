@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { calculateTrend } from '../utils/stats/priceTrend';
-import { normalizeReference, normalizeDescription, getProductKey } from '../utils/normalization';
+import { getProductKey } from '../utils/normalization';
 
 export const useProductComparison = (activeFiles, debouncedSearch, favorites = [], priceHistory = {}) => {
   return useMemo(() => {

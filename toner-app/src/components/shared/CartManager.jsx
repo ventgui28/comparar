@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import * as XLSX from 'xlsx';
 
 export const CartManager = ({ cart, products, activeFiles, isOpen, onClose, onUpdateCart }) => {

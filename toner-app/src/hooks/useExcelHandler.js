@@ -12,7 +12,7 @@ export const useExcelHandler = (setActiveFiles, favorites) => {
     try {
       const excelBundle = await readRawExcel(file);
       setShowMapper({ fileName: file.name, excelBundle });
-    } catch (error) {
+    } catch {
       alert('Erro no processamento.');
     } finally {
       event.target.value = '';
