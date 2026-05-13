@@ -1,15 +1,70 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Upload, X } from 'lucide-react';
 import { readRawExcel, parseWithMapping } from './utils/excelParser';
+import { saveFiles, loadFiles } from './utils/db';
 import MappingModal from './components/MappingModal';
 import ComparisonTable from './components/ComparisonTable';
+import { CartManager } from './components/CartManager';
 import { useProductComparison } from './hooks/useProductComparison';
 
 const App = () => {
-  const [activeFiles, setActiveFiles] = useState([]); 
+  const [activeFiles, setActiveFiles] = useState(null); 
+  const [cart, setCart] = useState(() => {
+    const saved = localStorage.getItem('toner-cart');
+    return saved ? JSON.parse(saved) : {};
+  });
+  const [favorites, setFavorites] = useState(() => {
+    const saved = localStorage.getItem('toner-favorites');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [toast, setToast] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [showMapper, setShowMapper] = useState(null);
+
+  useEffect(() => {
+    console.log('Attempting to load files from DB...');
+    loadFiles().then(data => {
+      console.log('Loaded from DB:', data);
+      setActiveFiles(data || []);
+    }).catch(err => console.error('DB Load Error:', err));
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('toner-cart', JSON.stringify(cart));
+    localStorage.setItem('toner-favorites', JSON.stringify(favorites));
+    if (activeFiles !== null) {
+      console.log('Saving to DB:', activeFiles);
+      saveFiles(activeFiles);
+    }
+  }, [cart, favorites, activeFiles]);
+
+  const toggleFavorite = (productId) => {
+    setFavorites(prev => 
+      prev.includes(productId) ? prev.filter(id => id !== productId) : [...prev, productId]
+    );
+  };
+
+  const addToCart = (productId, qty) => {
+    const item = comparisonData.find(i => i.id === productId);
+    const shopId = Object.keys(item.prices).find(id => item.prices[id] === Math.min(...Object.values(item.prices).filter(p => p > 0)));
+    setCart(prev => ({ ...prev, [productId]: { qty: parseInt(qty), shopId } }));
+    setToast('Adicionado!');
+    setTimeout(() => setToast(''), 2000);
+  };
+
+  const updateCart = (productId, qty) => {
+    if (qty <= 0) {
+      setCart(prev => {
+        const next = { ...prev };
+        delete next[productId];
+        return next;
+      });
+    } else {
+      setCart(prev => ({ ...prev, [productId]: { ...prev[productId], qty } }));
+    }
+  };
 
   useEffect(() => {
     const handler = setTimeout(() => setDebouncedSearch(searchTerm), 300);
@@ -34,7 +89,7 @@ const App = () => {
   const handleMappingConfirm = (mapping, rows) => {
     const parsed = parseWithMapping(rows, mapping, showMapper.fileName);
     setActiveFiles(prev => [
-      ...prev.filter(f => f.name !== showMapper.fileName), 
+      ...(prev || []).filter(f => f.name !== showMapper.fileName), 
       { id: Date.now(), name: showMapper.fileName, data: parsed, mapping }
     ]);
     setShowMapper(null);
@@ -50,12 +105,16 @@ const App = () => {
   return (
     <div className="app-shell">
       <main className="container">
-        <div style={{ textAlign: 'right', marginBottom: '1rem' }}>
+        <div style={{ textAlign: 'right', marginBottom: '1rem', display: 'flex', gap: '10px', justifyContent: 'flex-end', alignItems: 'center' }}>
+          {toast && <span className="toast">{toast}</span>}
+          {Object.keys(cart).length > 0 && (
+            <button onClick={() => setIsCartOpen(true)} className="btn-secondary">Carrinho ({Object.keys(cart).length})</button>
+          )}
           <button 
             onClick={() => { localStorage.clear(); window.location.reload(); }}
             style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '0.7rem', cursor: 'pointer', opacity: 0.5 }}
           >
-            Reset Total (Limpar Memória)
+            Reset Total
           </button>
         </div>
 
@@ -69,7 +128,7 @@ const App = () => {
           </div>
         </section>
 
-        {activeFiles.length > 0 && (
+        {activeFiles && activeFiles.length > 0 && (
           <div className="indicators-row">
             {activeFiles.map(f => (
               <div key={f.id} className="file-badge">
@@ -104,15 +163,19 @@ const App = () => {
         </div>
 
         <div className="results-paper">
-          {comparisonData.length > 0 ? (
+          {activeFiles && comparisonData.length > 0 ? (
             <ComparisonTable 
               comparisonData={comparisonData} 
               activeFiles={activeFiles} 
-              onDeleteProduct={handleDeleteProduct}
+              onAddToCart={addToCart}
+              favorites={favorites}
+              onToggleFavorite={toggleFavorite}
             />
           ) : (
             <div className="empty-state-pro" style={{ textAlign: 'center', padding: '10rem 2rem', opacity: 0.3 }}>
-              {activeFiles.length === 0 ? (
+              {activeFiles === null ? (
+                <p style={{ fontSize: '1rem' }}>A carregar dados...</p>
+              ) : activeFiles.length === 0 ? (
                 <p style={{ fontSize: '1rem' }}>Carregue pelo menos um ficheiro para começar.</p>
               ) : debouncedSearch ? (
                 <p style={{ fontSize: '1rem' }}>Nenhum produto encontrado para "{debouncedSearch}".</p>
@@ -122,6 +185,16 @@ const App = () => {
             </div>
           )}
         </div>
+        {isCartOpen && (
+          <CartManager 
+            cart={cart} 
+            products={comparisonData} 
+            activeFiles={activeFiles} 
+            isOpen={isCartOpen} 
+            onClose={() => setIsCartOpen(false)} 
+            onUpdateCart={updateCart}
+          />
+        )}
       </main>
 
       {showMapper && (

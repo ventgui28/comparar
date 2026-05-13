@@ -13,7 +13,7 @@ const PriceDisplay = ({ price, isBest }) => (
   </td>
 );
 
-const ComparisonTable = ({ comparisonData, activeFiles, onDeleteProduct }) => {
+const ComparisonTable = ({ comparisonData, activeFiles, onAddToCart, favorites, onToggleFavorite }) => {
   const [expandedRows, setExpandedRows] = useState(new Set());
 
   const toggleRow = (id) => {
@@ -29,7 +29,8 @@ const ComparisonTable = ({ comparisonData, activeFiles, onDeleteProduct }) => {
     <table className="pro-table">
       <thead>
         <tr>
-          <th width="60"></th>
+          <th width="40">Favorito</th>
+          <th width="120">Carrinho</th>
           <th>Descrição do Produto</th>
           <th width="150">Ref. Melhor Preço</th>
           {activeFiles.map(f => <th key={f.id} className="col-price">{f.name}</th>)}
@@ -45,18 +46,32 @@ const ComparisonTable = ({ comparisonData, activeFiles, onDeleteProduct }) => {
           const bestFileId = Object.keys(item.prices).find(id => item.prices[id] === minPrice);
           const bestRef = item.refs[bestFileId];
           const isExpanded = expandedRows.has(item.id);
+          const isFavorite = favorites?.includes(item.id);
 
           return (
             <React.Fragment key={item.id}>
               <tr className="table-row">
-                <td style={{ width: '40px', textAlign: 'center' }}>
-                  <button 
-                    onClick={() => onDeleteProduct(item.id)}
-                    className="btn-icon-danger"
-                    title="Eliminar este produto da vista"
-                  >
-                    <Trash2 size={14} />
+                <td style={{ textAlign: 'center' }}>
+                  <button onClick={() => onToggleFavorite(item.id)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
+                    {isFavorite ? '⭐' : '☆'}
                   </button>
+                </td>
+                <td style={{ width: '120px', textAlign: 'center' }}>
+                  <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                    <input 
+                      type="number" 
+                      min="1" 
+                      defaultValue="1" 
+                      style={{ width: '40px' }}
+                      id={`qty-${item.id}`}
+                    />
+                    <button 
+                      onClick={() => onAddToCart(item.id, document.getElementById(`qty-${item.id}`).value)}
+                      className="btn-add-cart"
+                    >
+                      +
+                    </button>
+                  </div>
                 </td>
                 <td onClick={() => toggleRow(item.id)}>
                   <div className="product-name">{item.desc}</div>
@@ -82,8 +97,15 @@ const ComparisonTable = ({ comparisonData, activeFiles, onDeleteProduct }) => {
               </tr>
               {isExpanded && (
                 <tr className="row-details">
-                  <td colSpan={activeFiles.length + 4}>
+                  <td colSpan={activeFiles.length + 5}>
                     <div className="details-content animate-in">
+                      {isFavorite && (
+                        <div className="analytics-cards" style={{ marginTop: '10px', display: 'flex', gap: '15px', marginBottom: '10px' }}>
+                          <span>Min: {Math.min(...prices).toFixed(2)}€</span>
+                          <span>Avg: {(prices.reduce((a, b) => a + b, 0) / prices.length).toFixed(2)}€</span>
+                          <span>Last: {prices[prices.length - 1].toFixed(2)}€</span>
+                        </div>
+                      )}
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '2rem' }}>
                         {Object.entries(item.refs).map(([fileId, ref]) => {
                           const f = activeFiles.find(file => file.id.toString() === fileId.toString());

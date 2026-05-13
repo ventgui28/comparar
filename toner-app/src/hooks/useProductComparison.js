@@ -11,7 +11,7 @@ const normalizeDescription = (text) => {
 
 export const useProductComparison = (activeFiles, debouncedSearch) => {
   return useMemo(() => {
-    if (activeFiles.length === 0) return [];
+    if (!activeFiles || activeFiles.length === 0) return [];
 
     const s = debouncedSearch.toLowerCase();
     const isSearchEmpty = !s;
