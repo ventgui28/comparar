@@ -1,73 +1,28 @@
 import React, { useState, useMemo } from 'react';
 import { Search, Eye, EyeOff, Trash2, Check } from 'lucide-react';
+import useMappingState from '../../hooks/useMappingState';
 
 const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
   const { sheetNames, sheetsData } = excelBundle;
-  const [selectedSheet, setSelectedSheet] = useState(sheetNames[0]);
-  const [activeSlot, setActiveSlot] = useState('ref');
-  const [debugSearch, setDebugSearch] = useState('');
-  const [showRaw, setShowRaw] = useState(false);
-  const [ignoredRows, setIgnoredRows] = useState(new Set());
-  
-  const [selections, setSelections] = useState({
-    ref: { start: null, end: null },
-    name: { start: null, end: null },
-    price: { start: null, end: null }
-  });
+  const {
+    selectedSheet,
+    activeSlot,
+    setActiveSlot,
+    selections,
+    ignoredRows,
+    currentData,
+    filteredData,
+    toggleIgnoreRow,
+    handleCellClick,
+    handleSheetChange
+  } = useMappingState(sheetNames, sheetsData);
 
-  const currentData = sheetsData[selectedSheet] || [];
-  
-  const filteredData = useMemo(() => {
-    return currentData.filter((_, idx) => !ignoredRows.has(idx));
-  }, [currentData, ignoredRows]);
+  const [showRaw, setShowRaw] = useState(false);
+  const [debugSearch, setDebugSearch] = useState('');
 
   const previewRows = currentData.slice(0, 200); 
   const maxCols = Math.max(...previewRows.map(row => (row ? row.length : 0)), 0);
   const colIndices = Array.from({ length: maxCols }, (_, i) => i);
-
-  const toggleIgnoreRow = (idx) => {
-    const newIgnored = new Set(ignoredRows);
-    if (newIgnored.has(idx)) newIgnored.delete(idx);
-    else newIgnored.add(idx);
-    setIgnoredRows(newIgnored);
-  };
-
-  const handleCellClick = (rowIndex, colIndex) => {
-    const activeSlotData = selections[activeSlot];
-    if ((activeSlotData.start?.r === rowIndex && activeSlotData.start?.c === colIndex) || 
-        (activeSlotData.end?.r === rowIndex && activeSlotData.end?.c === colIndex)) {
-      setSelections(prev => ({ ...prev, [activeSlot]: { start: null, end: null } }));
-      return;
-    }
-
-    const slots = ['ref', 'name', 'price'];
-    const currentSlotIndex = slots.indexOf(activeSlot);
-    
-    const occupiedSlot = slots.find(s => s !== activeSlot && selections[s].start?.c === colIndex);
-    
-    if (occupiedSlot) {
-      setActiveSlot(occupiedSlot);
-      return;
-    }
-
-    if (selections[activeSlot].start && selections[activeSlot].start.c !== colIndex) {
-      const nextSlot = slots[currentSlotIndex + 1];
-      if (nextSlot) {
-        setActiveSlot(nextSlot);
-      }
-    }
-
-    const targetSlot = (selections[activeSlot].start && selections[activeSlot].start.c !== colIndex) 
-      ? (slots[currentSlotIndex + 1] || activeSlot) 
-      : activeSlot;
-
-    const slot = selections[targetSlot];
-    if (!slot.start) {
-      setSelections(prev => ({ ...prev, [targetSlot]: { start: { r: rowIndex, c: colIndex }, end: null } }));
-    } else {
-      setSelections(prev => ({ ...prev, [targetSlot]: { ...slot, end: { r: rowIndex, c: colIndex } } }));
-    }
-  };
 
   const getCellClass = (r, c) => {
     const slot = ['ref', 'name', 'price'].find(s => 
@@ -131,7 +86,7 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
             <div>
               <label style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)' }}>FOLHA</label>
-              <select className="pill" value={selectedSheet} onChange={(e) => { setSelectedSheet(e.target.value); setSelections({ ref: { start: null, end: null }, name: { start: null, end: null }, price: { start: null, end: null } }); setIgnoredRows(new Set()); }}>
+              <select className="pill" value={selectedSheet} onChange={(e) => handleSheetChange(e.target.value)}>
                 {sheetNames.map(n => <option key={n} value={n}>{n}</option>)}
               </select>
             </div>
