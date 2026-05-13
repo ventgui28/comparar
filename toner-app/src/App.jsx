@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Upload, X } from 'lucide-react';
 import { readRawExcel, parseWithMapping } from './utils/excelParser';
+import { savePriceHistory } from './utils/db';
 import MappingModal from './components/shared/MappingModal';
 import ComparisonTable from './components/Table/ComparisonTable';
 import { CartManager } from './components/shared/CartManager';
@@ -20,7 +21,7 @@ const App = () => {
     return () => clearTimeout(handler);
   }, [searchTerm]);
 
-  const comparisonData = useProductComparison(activeFiles, debouncedSearch);
+  const comparisonData = useProductComparison(activeFiles, debouncedSearch, favorites);
 
   const handleFileDrop = async (event) => {
     const file = event.target.files[0];
@@ -37,6 +38,15 @@ const App = () => {
 
   const handleMappingConfirm = (mapping, rows) => {
     const parsed = parseWithMapping(rows, mapping, showMapper.fileName);
+    
+    // Save history for favorites automatically
+    parsed.forEach(item => {
+      // Need a key that matches the ID logic in useProductComparison
+      const key = (item.desc || '').toLowerCase().replace(/\(.*\)/g, '').replace(/\s+/g, ' ').trim() 
+                  || item.ref.trim().toLowerCase();
+      savePriceHistory(key, item.price, favorites);
+    });
+
     setActiveFiles(prev => [
       ...(prev || []).filter(f => f.name !== showMapper.fileName), 
       { id: Date.now(), name: showMapper.fileName, data: parsed, mapping }
@@ -88,7 +98,18 @@ const App = () => {
             {activeFiles.map(f => (
               <div key={f.id} className="file-badge">
                 <span className="file-dot"></span>
-                {f.name}
+                <span 
+                  onClick={() => {
+                    const bundle = { 
+                      sheetNames: [f.name], 
+                      sheetsData: { [f.name]: f.data.map((d, i) => [d.ref, d.desc, d.price]) } // Reconstruir para editar
+                    };
+                    setShowMapper({ fileName: f.name, excelBundle: bundle }); 
+                  }}
+                  style={{ cursor: 'pointer', textDecoration: 'underline' }}
+                >
+                  {f.name}
+                </span>
                 <button 
                   onClick={() => setActiveFiles(prev => prev.filter(file => file.id !== f.id))}
                   style={{ background: 'none', border: 'none', marginLeft: '8px', cursor: 'pointer', color: 'var(--danger)' }}
