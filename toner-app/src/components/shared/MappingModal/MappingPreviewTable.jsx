@@ -30,7 +30,7 @@ const MappingPreviewTable = ({
                   className="row-number-btn"
                   style={{ position: 'sticky', left: 0, zIndex: 5, background: '#f8fafc', fontWeight: 800, cursor: 'pointer' }}
                 >
-                  {row.__rowIdx}
+                  {row.__rowIdx ?? rIdx + 1}
                 </td>
                 {colIndices.map(cIdx => (
                   <td key={cIdx} className={getCellClass(rIdx, cIdx)} onClick={() => handleCellClick(rIdx, cIdx)}>

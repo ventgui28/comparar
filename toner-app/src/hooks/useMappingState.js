@@ -38,49 +38,47 @@ export const useMappingState = (sheetNames, sheetsData) => {
   }, []);
 
   const handleCellClick = useCallback((rowIndex, colIndex) => {
-    setSelections(prev => {
-      const activeSlotData = prev[activeSlot];
-      
-      // Se clicar na mesma célula já selecionada (start ou end), desmarcar o slot
-      if ((activeSlotData.start?.r === rowIndex && activeSlotData.start?.c === colIndex) || 
-          (activeSlotData.end?.r === rowIndex && activeSlotData.end?.c === colIndex)) {
-        return { ...prev, [activeSlot]: { start: null, end: null } };
-      }
+    const slots = ['ref', 'name', 'price'];
+    const activeSlotData = selections[activeSlot];
+    
+    // 1. Desmarcar se clicar na mesma célula
+    if ((activeSlotData.start?.r === rowIndex && activeSlotData.start?.c === colIndex) || 
+        (activeSlotData.end?.r === rowIndex && activeSlotData.end?.c === colIndex)) {
+      setSelections(prev => ({ ...prev, [activeSlot]: { start: null, end: null } }));
+      return;
+    }
 
-      const slots = ['ref', 'name', 'price'];
+    // 2. Mudar de slot se clicar em coluna já ocupada
+    const occupiedSlot = slots.find(s => s !== activeSlot && selections[s].start?.c === colIndex);
+    if (occupiedSlot) {
+      setActiveSlot(occupiedSlot);
+      return;
+    }
+
+    // 3. Determinar o slot alvo (avanço automático)
+    let targetSlot = activeSlot;
+    if (activeSlotData.start && activeSlotData.start.c !== colIndex) {
       const currentSlotIndex = slots.indexOf(activeSlot);
-      
-      // Verificar se a coluna já está ocupada por outro slot
-      const occupiedSlot = slots.find(s => s !== activeSlot && prev[s].start?.c === colIndex);
-      
-      if (occupiedSlot) {
-        setActiveSlot(occupiedSlot);
-        return prev;
+      const nextSlot = slots[currentSlotIndex + 1];
+      if (nextSlot) {
+        targetSlot = nextSlot;
+        setActiveSlot(nextSlot);
+      } else {
+        return; // Não avança além do último slot
       }
+    }
 
-      // Lógica de avanço automático de slot se clicar em nova coluna quando o atual já tem start
-      let targetSlot = activeSlot;
-      if (prev[activeSlot].start && prev[activeSlot].start.c !== colIndex) {
-        const nextSlot = slots[currentSlotIndex + 1];
-        if (nextSlot) {
-          setActiveSlot(nextSlot);
-          targetSlot = nextSlot;
-        }
-      }
-
+    // 4. Aplicar seleção no slot alvo
+    setSelections(prev => {
       const slot = prev[targetSlot];
       if (!slot.start) {
         return { ...prev, [targetSlot]: { start: { r: rowIndex, c: colIndex }, end: null } };
-      } else {
-        // Se a coluna for diferente da inicial, mas targetSlot for o mesmo (ex: último slot)
-        // ou se for a mesma coluna, definir o end
-        if (slot.start.c === colIndex) {
-            return { ...prev, [targetSlot]: { ...slot, end: { r: rowIndex, c: colIndex } } };
-        }
-        return prev;
+      } else if (slot.start.c === colIndex) {
+        return { ...prev, [targetSlot]: { ...slot, end: { r: rowIndex, c: colIndex } } };
       }
+      return prev;
     });
-  }, [activeSlot]);
+  }, [activeSlot, selections]);
 
   return {
     selectedSheet,
