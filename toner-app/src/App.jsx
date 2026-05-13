@@ -1,70 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Upload, X } from 'lucide-react';
 import { readRawExcel, parseWithMapping } from './utils/excelParser';
-import { saveFiles, loadFiles } from './utils/db';
-import MappingModal from './components/MappingModal';
-import ComparisonTable from './components/ComparisonTable';
-import { CartManager } from './components/CartManager';
+import MappingModal from './components/shared/MappingModal';
+import ComparisonTable from './components/Table/ComparisonTable';
+import { CartManager } from './components/shared/CartManager';
+import { useToner } from './context/TonerContext';
 import { useProductComparison } from './hooks/useProductComparison';
 
 const App = () => {
-  const [activeFiles, setActiveFiles] = useState(null); 
-  const [cart, setCart] = useState(() => {
-    const saved = localStorage.getItem('toner-cart');
-    return saved ? JSON.parse(saved) : {};
-  });
-  const [favorites, setFavorites] = useState(() => {
-    const saved = localStorage.getItem('toner-favorites');
-    return saved ? JSON.parse(saved) : [];
-  });
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [toast, setToast] = useState('');
+  const { activeFiles, setActiveFiles, cart, favorites, toggleFavorite, addToCart, updateCart } = useToner();
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [showMapper, setShowMapper] = useState(null);
-
-  useEffect(() => {
-    console.log('Attempting to load files from DB...');
-    loadFiles().then(data => {
-      console.log('Loaded from DB:', data);
-      setActiveFiles(data || []);
-    }).catch(err => console.error('DB Load Error:', err));
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('toner-cart', JSON.stringify(cart));
-    localStorage.setItem('toner-favorites', JSON.stringify(favorites));
-    if (activeFiles !== null) {
-      console.log('Saving to DB:', activeFiles);
-      saveFiles(activeFiles);
-    }
-  }, [cart, favorites, activeFiles]);
-
-  const toggleFavorite = (productId) => {
-    setFavorites(prev => 
-      prev.includes(productId) ? prev.filter(id => id !== productId) : [...prev, productId]
-    );
-  };
-
-  const addToCart = (productId, qty) => {
-    const item = comparisonData.find(i => i.id === productId);
-    const shopId = Object.keys(item.prices).find(id => item.prices[id] === Math.min(...Object.values(item.prices).filter(p => p > 0)));
-    setCart(prev => ({ ...prev, [productId]: { qty: parseInt(qty), shopId } }));
-    setToast('Adicionado!');
-    setTimeout(() => setToast(''), 2000);
-  };
-
-  const updateCart = (productId, qty) => {
-    if (qty <= 0) {
-      setCart(prev => {
-        const next = { ...prev };
-        delete next[productId];
-        return next;
-      });
-    } else {
-      setCart(prev => ({ ...prev, [productId]: { ...prev[productId], qty } }));
-    }
-  };
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [toast, setToast] = useState('');
 
   useEffect(() => {
     const handler = setTimeout(() => setDebouncedSearch(searchTerm), 300);
@@ -93,6 +42,12 @@ const App = () => {
       { id: Date.now(), name: showMapper.fileName, data: parsed, mapping }
     ]);
     setShowMapper(null);
+  };
+
+  const handleAddToCart = (id, qty) => {
+    addToCart(id, qty);
+    setToast('Adicionado!');
+    setTimeout(() => setToast(''), 2000);
   };
 
   const handleDeleteProduct = (productId) => {
@@ -167,7 +122,7 @@ const App = () => {
             <ComparisonTable 
               comparisonData={comparisonData} 
               activeFiles={activeFiles} 
-              onAddToCart={addToCart}
+              onAddToCart={handleAddToCart}
               favorites={favorites}
               onToggleFavorite={toggleFavorite}
             />
