@@ -9,7 +9,7 @@ const normalizeDescription = (text) => {
     .trim();
 };
 
-export const useProductComparison = (activeFiles, debouncedSearch) => {
+export const useProductComparison = (activeFiles, debouncedSearch, favorites = []) => {
   return useMemo(() => {
     if (!activeFiles || activeFiles.length === 0) return [];
 
@@ -55,10 +55,16 @@ export const useProductComparison = (activeFiles, debouncedSearch) => {
           const delta = Math.max(...prices) - Math.min(...prices);
           return { ...item, delta };
         })
-        .sort((a, b) => b.delta - a.delta)
+        .sort((a, b) => {
+          const aFav = favorites.includes(a.id);
+          const bFav = favorites.includes(b.id);
+          if (aFav && !bFav) return -1;
+          if (!aFav && bFav) return 1;
+          return b.delta - a.delta;
+        })
         .slice(0, 50);
     }
 
     return results;
-  }, [activeFiles, debouncedSearch]);
+  }, [activeFiles, debouncedSearch, favorites]);
 };
