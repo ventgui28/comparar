@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import './index.css';
 import { TonerProvider } from './context/TonerContext';
 import App from './App.jsx';
 
