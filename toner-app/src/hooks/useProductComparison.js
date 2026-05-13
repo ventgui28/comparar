@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { calculateTrend } from '../utils/stats/priceTrend';
 
 const normalizeDescription = (text) => {
   if (!text) return '';
@@ -14,7 +15,7 @@ const normalizeReference = (ref) => {
   return ref.toLowerCase().replace(/[^a-z0-9]/g, '').trim();
 };
 
-export const useProductComparison = (activeFiles, debouncedSearch, favorites = []) => {
+export const useProductComparison = (activeFiles, debouncedSearch, favorites = [], priceHistory = {}) => {
   return useMemo(() => {
     if (!activeFiles || activeFiles.length === 0) return [];
 
@@ -50,7 +51,13 @@ export const useProductComparison = (activeFiles, debouncedSearch, favorites = [
       });
     });
 
-    let results = Array.from(masterMap.values());
+    let results = Array.from(masterMap.values()).map(item => {
+      const history = priceHistory[item.id];
+      const prices = Object.values(item.prices);
+      const currentPrice = Math.min(...prices); // Best current price
+      const trend = calculateTrend(currentPrice, history);
+      return { ...item, trend };
+    });
 
     if (isSearchEmpty) {
       results = results
@@ -71,5 +78,5 @@ export const useProductComparison = (activeFiles, debouncedSearch, favorites = [
     }
 
     return results;
-  }, [activeFiles, debouncedSearch, favorites]);
+  }, [activeFiles, debouncedSearch, favorites, priceHistory]);
 };
