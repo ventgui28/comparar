@@ -32,6 +32,7 @@ describe('DB Profiles Persistence', () => {
 
   it('saveProfile should call db.put with profile data and name as key', async () => {
     const profile = { name: 'Empresa A', mapping: { 'col1': 'field1' } };
+    const now = Date.now();
     await saveProfile(profile);
     
     expect(mockDb.put).toHaveBeenCalledWith('profiles', expect.objectContaining({
@@ -39,6 +40,10 @@ describe('DB Profiles Persistence', () => {
       mapping: { 'col1': 'field1' },
       updatedAt: expect.any(Number)
     }));
+
+    const savedProfile = mockDb.put.mock.calls[0][1];
+    expect(savedProfile.updatedAt).toBeGreaterThanOrEqual(now);
+    expect(savedProfile.updatedAt).toBeLessThanOrEqual(Date.now());
   });
 
   it('getProfiles should return all items from profiles store', async () => {

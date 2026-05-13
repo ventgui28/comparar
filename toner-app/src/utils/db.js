@@ -22,18 +22,33 @@ export const initDB = async () => {
 };
 
 export const saveProfile = async (profile) => {
-  const db = await initDB();
-  await db.put(PROFILES_STORE, { ...profile, updatedAt: Date.now() });
+  try {
+    const db = await initDB();
+    await db.put(PROFILES_STORE, { ...profile, updatedAt: Date.now() });
+  } catch (error) {
+    console.error('Error saving profile:', error);
+    throw error;
+  }
 };
 
 export const getProfiles = async () => {
-  const db = await initDB();
-  return db.getAll(PROFILES_STORE);
+  try {
+    const db = await initDB();
+    return await db.getAll(PROFILES_STORE);
+  } catch (error) {
+    console.error('Error getting profiles:', error);
+    return [];
+  }
 };
 
 export const deleteProfile = async (name) => {
-  const db = await initDB();
-  await db.delete(PROFILES_STORE, name);
+  try {
+    const db = await initDB();
+    await db.delete(PROFILES_STORE, name);
+  } catch (error) {
+    console.error('Error deleting profile:', error);
+    throw error;
+  }
 };
 
 export const getPriceHistory = async (prodId) => {

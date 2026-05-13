@@ -20,6 +20,8 @@ const isValidRow = (row, isHeaderPhase) => {
   return hasPriceLikeNumber || isHeaderPhase;
 };
 
+const HEADER_THRESHOLD_ROWS = 20;
+
 export const readRawExcel = (file) => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -54,7 +56,7 @@ export const readRawExcel = (file) => {
               row.push(cell ? cell.v : "");
             }
 
-            const isHeaderPhase = visibleRows.length < 20;
+            const isHeaderPhase = visibleRows.length < HEADER_THRESHOLD_ROWS;
             if (isValidRow(row, isHeaderPhase)) {
               row.__rowIdx = R + 1;
               visibleRows.push(row);
