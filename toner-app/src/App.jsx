@@ -1,70 +1,50 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Upload, X } from 'lucide-react';
-import { readRawExcel, parseWithMapping } from './utils/excelParser';
-import { savePriceHistory } from './utils/db';
 import MappingModal from './components/shared/MappingModal';
 import ComparisonTable from './components/Table/ComparisonTable';
 import { CartManager } from './components/shared/CartManager';
 import { useToner } from './context/TonerContext';
 import { useProductComparison } from './hooks/useProductComparison';
-import { getProductKey } from './utils/normalization';
+import { useExcelHandler } from './hooks/useExcelHandler';
+import { useAppActions } from './hooks/useAppActions';
+
+const SEARCH_DEBOUNCE_MS = 300;
 
 const App = () => {
-  const { activeFiles, setActiveFiles, cart, favorites, toggleFavorite, addToCart, updateCart, priceHistory } = useToner();
+  const { 
+    activeFiles, 
+    setActiveFiles, 
+    cart, 
+    favorites, 
+    toggleFavorite, 
+    addToCart, 
+    updateCart, 
+    priceHistory 
+  } = useToner();
+
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [showMapper, setShowMapper] = useState(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [toast, setToast] = useState('');
+
+  const { 
+    showMapper, 
+    setShowMapper, 
+    handleFileDrop, 
+    handleMappingConfirm 
+  } = useExcelHandler(setActiveFiles, favorites);
+
+  const { 
+    toast, 
+    handleAddToCart, 
+    handleResetTotal 
+  } = useAppActions(addToCart);
 
   useEffect(() => {
-    const handler = setTimeout(() => setDebouncedSearch(searchTerm), 300);
+    const handler = setTimeout(() => setDebouncedSearch(searchTerm), SEARCH_DEBOUNCE_MS);
     return () => clearTimeout(handler);
   }, [searchTerm]);
 
   const comparisonData = useProductComparison(activeFiles, debouncedSearch, favorites, priceHistory);
-
-  const handleFileDrop = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-    try {
-      const excelBundle = await readRawExcel(file);
-      setShowMapper({ fileName: file.name, excelBundle });
-    } catch (error) {
-      alert('Erro no processamento.');
-    } finally {
-      event.target.value = '';
-    }
-  };
-
-  const handleMappingConfirm = (mapping, rows) => {
-    const parsed = parseWithMapping(rows, mapping, showMapper.fileName);
-    
-    // Save history for favorites automatically
-    parsed.forEach(item => {
-      const key = getProductKey(item);
-      savePriceHistory(key, item.price, favorites);
-    });
-
-    setActiveFiles(prev => [
-      ...(prev || []).filter(f => f.name !== showMapper.fileName), 
-      { id: Date.now(), name: showMapper.fileName, data: parsed, mapping }
-    ]);
-    setShowMapper(null);
-  };
-
-  const handleAddToCart = (id, qty, shopId) => {
-    addToCart(id, qty, shopId);
-    setToast('Adicionado!');
-    setTimeout(() => setToast(''), 2000);
-  };
-
-  const handleDeleteProduct = (productId) => {
-    setActiveFiles(prev => prev.map(f => ({
-      ...f,
-      data: f.data.filter(d => getProductKey(d) !== productId)
-    })));
-  };
 
   return (
     <div className="app-shell">
@@ -72,10 +52,12 @@ const App = () => {
         <div style={{ textAlign: 'right', marginBottom: '1rem', display: 'flex', gap: '10px', justifyContent: 'flex-end', alignItems: 'center' }}>
           {toast && <span className="toast">{toast}</span>}
           {Object.keys(cart).length > 0 && (
-            <button onClick={() => setIsCartOpen(true)} className="btn-secondary">Carrinho ({Object.keys(cart).length})</button>
+            <button onClick={() => setIsCartOpen(true)} className="btn-secondary">
+              Carrinho ({Object.keys(cart).length})
+            </button>
           )}
           <button 
-            onClick={() => { localStorage.clear(); window.location.reload(); }}
+            onClick={handleResetTotal}
             style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '0.7rem', cursor: 'pointer', opacity: 0.5 }}
           >
             Reset Total
@@ -101,7 +83,7 @@ const App = () => {
                   onClick={() => {
                     const bundle = { 
                       sheetNames: [f.name], 
-                      sheetsData: { [f.name]: f.data.map((d, i) => [d.ref, d.desc, d.price]) } // Reconstruir para editar
+                      sheetsData: { [f.name]: f.data.map((d) => [d.ref, d.desc, d.price]) } 
                     };
                     setShowMapper({ fileName: f.name, excelBundle: bundle }); 
                   }}
