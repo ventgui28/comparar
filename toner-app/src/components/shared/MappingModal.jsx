@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { Check } from 'lucide-react';
+import { useState, useMemo } from 'react';
 import useMappingState from '../../hooks/useMappingState';
 import MappingWizardHeader from './MappingModal/MappingWizardHeader';
 import MappingPreviewTable from './MappingModal/MappingPreviewTable';
@@ -13,7 +12,6 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
     selections,
     ignoredRows,
     currentData,
-    filteredData,
     toggleIgnoreRow,
     handleCellClick,
     handleSheetChange,
@@ -22,14 +20,20 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
     profiles,
     handleDeleteProfile,
     handleSaveProfile,
-    handleProfileSelect
+    handleProfileSelect,
+    setSelections
   } = useMappingState(sheetNames, sheetsData, fileName);
 
   const [showRaw, setShowRaw] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
-  const previewRows = currentData.slice(0, 200); 
-  const maxCols = Math.max(...previewRows.map(row => (row ? row.length : 0)), 0);
-  const colIndices = Array.from({ length: maxCols }, (_, i) => i);
+  const previewData = useMemo(() => {
+    return isExpanded ? currentData : currentData.slice(0, 200);
+  }, [currentData, isExpanded]);
+
+  const toggleExpand = () => {
+    setIsExpanded(!isExpanded);
+  };
 
   const getCellClass = (r, c) => {
     const slot = ['ref', 'name', 'price'].find(s => 
@@ -55,11 +59,7 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
     return rangeClass || '';
   };
 
-  const canFinalize = selections.ref.start && selections.name.start && selections.price.start;
-
   const handleFinalize = async () => {
-    if (!canFinalize) return;
-
     const allStarts = [selections.ref.start?.r, selections.name.start?.r, selections.price.start?.r];
     const allEnds = [selections.ref.end?.r, selections.name.end?.r, selections.price.end?.r];
 
@@ -71,23 +71,26 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
       endRow: allEnds.some(e => e != null) ? Math.max(...allEnds.filter(e => e != null)) : null
     };
 
-    // Salvar perfil automaticamente se houver nome definido
-    if (companyName.trim()) {
+    // Auto-save profile if company name is set
+    if (companyName && companyName.trim()) {
       await handleSaveProfile();
     }
 
-    onConfirm(mapping, filteredData);
+    onConfirm(mapping, currentData);
   };
 
   return (
     <div className="modal-overlay">
       <div className="modal-content animate-in">
         <MappingWizardHeader 
+          fileName={fileName}
+          sheetNames={sheetNames}
+          activeSheet={selectedSheet}
+          setActiveSheet={handleSheetChange}
           activeSlot={activeSlot}
           setActiveSlot={setActiveSlot}
-          selectedSheet={selectedSheet}
-          sheetNames={sheetNames}
-          onSheetChange={handleSheetChange}
+          selections={selections}
+          onReset={() => setSelections({ ref: { start: null, end: null }, name: { start: null, end: null }, price: { start: null, end: null } })}
           showRaw={showRaw}
           setShowRaw={setShowRaw}
           companyName={companyName}
@@ -98,25 +101,43 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
           profiles={profiles}
         />
 
-        <MappingPreviewTable 
-          showRaw={showRaw}
-          currentData={currentData}
-          previewRows={previewRows}
-          colIndices={colIndices}
-          ignoredRows={ignoredRows}
-          toggleIgnoreRow={toggleIgnoreRow}
-          handleCellClick={handleCellClick}
-          getCellClass={getCellClass}
-        />
+        <div className="preview-container">
+          <MappingPreviewTable 
+            data={previewData}
+            showRaw={showRaw}
+            currentData={currentData}
+            getCellClass={getCellClass}
+            handleCellClick={handleCellClick}
+            ignoredRows={ignoredRows}
+            onToggleRow={toggleIgnoreRow}
+          />
+        </div>
 
-        <div className="modal-actions">
-          <button className="btn-cancel" onClick={onCancel}>Cancelar</button>
+        <div className="preview-footer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.8rem' }}>
+          <span className="label-tiny" style={{ color: '#666' }}>
+            {isExpanded ? `A mostrar todas as ${currentData.length} linhas` : `A mostrar 200 de ${currentData.length} linhas`}
+          </span>
           
-          {canFinalize && (
-            <button className="btn-primary" onClick={handleFinalize} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Check size={18} /> Confirmar Mapeamento
+          {currentData.length > 200 && (
+            <button 
+              onClick={toggleExpand}
+              className="btn-text-action"
+              style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--primary)', cursor: 'pointer', background: 'none', border: 'none', textTransform: 'uppercase' }}
+            >
+              {isExpanded ? 'mostrar menos' : 'mostrar mais'}
             </button>
           )}
+        </div>
+
+        <div className="modal-actions" style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
+          <button onClick={onCancel} className="btn-secondary">Cancelar</button>
+          <button 
+            onClick={handleFinalize} 
+            className="btn-primary"
+            disabled={!selections.ref.start || !selections.name.start || !selections.price.start}
+          >
+            Confirmar Mapeamento
+          </button>
         </div>
       </div>
     </div>

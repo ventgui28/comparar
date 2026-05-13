@@ -22,7 +22,6 @@ const MappingWizardHeader = ({
     }
   };
 
-  // Ensure select value defaults to empty if companyName is manual or doesn't match
   const selectValue = profiles.some(p => p.name === companyName) ? companyName : "";
 
   return (
@@ -31,11 +30,10 @@ const MappingWizardHeader = ({
         <div className="profile-input-group">
           <input 
             type="text" 
-            placeholder="Nome da Empresa (opcional para salvar perfil)" 
+            placeholder="Nome da Empresa..." 
             value={companyName} 
             onChange={(e) => setCompanyName(e.target.value)}
-            className="pill"
-            style={{ minWidth: '250px' }}
+            className="pill company-input"
           />
         </div>
 
@@ -62,7 +60,7 @@ const MappingWizardHeader = ({
         )}
       </div>
 
-      <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', marginBottom: '1rem' }}>
+      <div className="step-indicator-row">
         {['ref', 'name', 'price'].map(slot => (
           <button 
             key={slot}
@@ -74,22 +72,23 @@ const MappingWizardHeader = ({
         ))}
       </div>
 
-      <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-        <div>
-          <label style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)' }}>FOLHA</label>
+      <div className="profile-controls">
+        <div className="profile-input-group">
+          <label className="label-tiny">FOLHA</label>
           <select className="pill" value={selectedSheet} onChange={(e) => onSheetChange(e.target.value)}>
             {sheetNames.map(n => <option key={n} value={n}>{n}</option>)}
           </select>
         </div>
         
-        <button onClick={() => setShowRaw(!showRaw)} className="pill" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          {showRaw ? <EyeOff size={14}/> : <Eye size={14}/>} {showRaw ? 'Ver Tabela' : 'Ver Dados Brutos'}
+        <button onClick={() => setShowRaw(!showRaw)} className="pill">
+          {showRaw ? <EyeOff size={14}/> : <Eye size={14}/>} 
+          <span>{showRaw ? 'Ver Tabela' : 'Ver Dados Brutos'}</span>
         </button>
       </div>
 
       {!showRaw && (
-        <div style={{ textAlign: 'center' }}>
-          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Seleciona o slot acima e clica nas células para mapear.</p>
+        <div className="instruction-text">
+          <p>Selecione o slot acima e clique nas células para mapear as colunas correspondentes.</p>
         </div>
       )}
     </div>

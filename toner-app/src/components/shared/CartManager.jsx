@@ -1,4 +1,5 @@
 import * as XLSX from 'xlsx';
+import { X, FileDown, Plus, Minus, Trash2 } from 'lucide-react';
 
 export const CartManager = ({ cart, products, activeFiles, isOpen, onClose, onUpdateCart }) => {
   if (!isOpen) return null;
@@ -9,6 +10,12 @@ export const CartManager = ({ cart, products, activeFiles, isOpen, onClose, onUp
     const prices = Object.values(prod.prices).filter(p => p > 0);
     const maxPrice = Math.max(...prices);
     return acc + (maxPrice - prod.prices[shopId]) * qty;
+  }, 0);
+
+  const totalAmount = Object.entries(cart).reduce((acc, [prodId, { qty, shopId }]) => {
+    const prod = products.find(p => p.id === prodId);
+    if (!prod) return acc;
+    return acc + (prod.prices[shopId] * qty);
   }, 0);
 
   const exportCart = () => {
@@ -41,35 +48,72 @@ export const CartManager = ({ cart, products, activeFiles, isOpen, onClose, onUp
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content">
-        <button className="close-btn" onClick={onClose}>×</button>
-        <h3>Carrinho ({Object.keys(cart).length} itens)</h3>
-        <p>Poupança Total: {totalSavings.toFixed(2)}€</p>
-        <ul className="cart-list">
-          {Object.entries(cart).map(([prodId, { qty, shopId }]) => {
-            const prod = products.find(p => p.id === prodId);
-            const price = prod?.prices[shopId] || 0;
-            return (
-              <li key={prodId} style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #f4f4f5' }}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 600 }}>{prod?.desc}</div>
-                  <div style={{ fontSize: '0.8rem', color: '#71717a' }}>
-                    {price.toFixed(2)}€ x {qty} = <strong>{(price * qty).toFixed(2)}€</strong>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                  <button onClick={() => onUpdateCart(prodId, qty - 1)} className="btn-qty">-</button>
-                  <span style={{ minWidth: '20px', textAlign: 'center' }}>{qty}</span>
-                  <button onClick={() => onUpdateCart(prodId, qty + 1)} className="btn-qty">+</button>
-                  <button onClick={() => onUpdateCart(prodId, 0)} style={{ color: '#ef4444', border: 'none', background: 'none', cursor: 'pointer', padding: '4px' }}>
-                    Remover
-                  </button>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-        <button onClick={exportCart} className="btn-primary">Exportar Excel</button>
+      <div className="modal-content cart-modal animate-in">
+        <header className="cart-header">
+          <div className="cart-title">
+            <h3>O teu Carrinho</h3>
+            <span className="badge">{Object.keys(cart).length} itens</span>
+          </div>
+          <button className="btn-close" onClick={onClose}><X size={20} /></button>
+        </header>
+
+        <div className="cart-body">
+          {Object.keys(cart).length === 0 ? (
+            <div className="empty-cart">
+              <p>O teu carrinho está vazio.</p>
+            </div>
+          ) : (
+            <ul className="cart-list">
+              {Object.entries(cart).map(([prodId, { qty, shopId }]) => {
+                const prod = products.find(p => p.id === prodId);
+                const price = prod?.prices[shopId] || 0;
+                return (
+                  <li key={prodId} className="cart-item">
+                    <div className="item-info">
+                      <div className="item-name">{prod?.desc}</div>
+                      <div className="item-meta">
+                        <span className="item-price">{price.toFixed(2)}€</span>
+                        <span className="item-multiply">×</span>
+                        <span className="item-qty">{qty}</span>
+                        <span className="item-total">{(price * qty).toFixed(2)}€</span>
+                      </div>
+                    </div>
+                    
+                    <div className="item-actions">
+                      <div className="qty-controls">
+                        <button onClick={() => onUpdateCart(prodId, qty - 1)} className="btn-qty"><Minus size={14} /></button>
+                        <span className="qty-value">{qty}</span>
+                        <button onClick={() => onUpdateCart(prodId, qty + 1)} className="btn-qty"><Plus size={14} /></button>
+                      </div>
+                      <button onClick={() => onUpdateCart(prodId, 0)} className="btn-remove" title="Remover item">
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+
+        <footer className="cart-footer">
+          <div className="cart-summary">
+            <div className="summary-row">
+              <span>Total</span>
+              <span className="total-value">{totalAmount.toFixed(2)}€</span>
+            </div>
+            {totalSavings > 0 && (
+              <div className="summary-row savings">
+                <span>Poupas</span>
+                <span className="savings-value">-{totalSavings.toFixed(2)}€</span>
+              </div>
+            )}
+          </div>
+          <button onClick={exportCart} className="btn-primary btn-block" disabled={Object.keys(cart).length === 0}>
+            <FileDown size={18} />
+            Exportar Carrinho (Excel)
+          </button>
+        </footer>
       </div>
     </div>
   );

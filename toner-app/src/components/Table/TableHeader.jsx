@@ -1,14 +1,14 @@
+import { Star, TrendingUp, ShoppingCart } from 'lucide-react';
 
 const TableHeader = ({ activeFiles }) => (
   <thead>
     <tr>
-      <th width="40">Favorito</th>
-      <th width="40">Histórico</th>
-      <th width="120">Carrinho</th>
-      <th>Descrição do Produto</th>
-      <th width="150">Ref. Melhor Preço</th>
-      {activeFiles.map(f => <th key={f.id} className="col-price">{f.name}</th>)}
-      <th width="150" style={{ textAlign: 'center' }}>Poupança</th>
+      <th className="action-cell"><Star size={14} /></th>
+      <th className="action-cell"><TrendingUp size={14} /></th>
+      <th className="cart-cell"><ShoppingCart size={14} /></th>
+      <th>Produto</th>
+      {activeFiles.map(f => <th key={f.id} className="price-cell">{f.name}</th>)}
+      <th className="savings-cell">Poupança</th>
     </tr>
   </thead>
 );

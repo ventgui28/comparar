@@ -53,10 +53,9 @@ export const groupAndCompareProducts = (activeFiles, searchTerm, favorites = [],
 
   if (isSearchEmpty) {
     results = results
-      .filter(item => Object.keys(item.prices).length > 1)
       .map(item => {
         const prices = Object.values(item.prices);
-        const delta = Math.max(...prices) - Math.min(...prices);
+        const delta = prices.length > 1 ? Math.max(...prices) - Math.min(...prices) : 0;
         return { ...item, delta };
       })
       .sort((a, b) => {
@@ -64,9 +63,17 @@ export const groupAndCompareProducts = (activeFiles, searchTerm, favorites = [],
         const bFav = favorites.includes(b.id);
         if (aFav && !bFav) return -1;
         if (!aFav && bFav) return 1;
-        return b.delta - a.delta;
-      })
-      .slice(0, 50);
+        
+        // Prioritize items with comparisons (delta > 0)
+        if (a.delta > 0 && b.delta === 0) return -1;
+        if (a.delta === 0 && b.delta > 0) return 1;
+        
+        // Then sort by delta amount
+        if (a.delta !== b.delta) return b.delta - a.delta;
+        
+        // Finally alphabetize by description
+        return a.desc.localeCompare(b.desc);
+      });
   }
 
   return results;

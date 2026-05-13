@@ -5,18 +5,50 @@ import { getProductKey } from '../utils/normalization';
 
 export const useExcelHandler = (setActiveFiles, favorites) => {
   const [showMapper, setShowMapper] = useState(null);
+  const [fileQueue, setFileQueue] = useState([]);
 
-  const handleFileDrop = async (event) => {
-    const file = event.target.files[0];
+  const processFile = async (file) => {
     if (!file) return;
     try {
       const excelBundle = await readRawExcel(file);
       setShowMapper({ fileName: file.name, excelBundle });
-    } catch {
-      alert('Erro no processamento.');
-    } finally {
-      event.target.value = '';
+    } catch (err) {
+      console.error(err);
+      alert(`Erro ao processar ${file.name}`);
+      // Process next in queue if this one fails
+      processNextInQueue();
     }
+  };
+
+  const processNextInQueue = (currentQueue = []) => {
+    const remaining = currentQueue.length > 0 ? currentQueue : fileQueue;
+    if (remaining.length > 0) {
+      const nextFile = remaining[0];
+      const nextQueue = remaining.slice(1);
+      setFileQueue(nextQueue);
+      processFile(nextFile);
+    }
+  };
+
+  const handleFiles = async (files) => {
+    const fileList = Array.from(files);
+    if (fileList.length === 0) return;
+
+    if (!showMapper) {
+      // Start processing immediately
+      const first = fileList[0];
+      const rest = fileList.slice(1);
+      setFileQueue(rest);
+      await processFile(first);
+    } else {
+      // Add all to queue
+      setFileQueue(prev => [...prev, ...fileList]);
+    }
+  };
+
+  const handleFileDrop = async (event) => {
+    await handleFiles(event.target.files);
+    event.target.value = '';
   };
 
   const handleMappingConfirm = (mapping, rows) => {
@@ -31,12 +63,16 @@ export const useExcelHandler = (setActiveFiles, favorites) => {
       ...(prev || []).filter(f => f.name !== showMapper.fileName), 
       { id: Date.now(), name: showMapper.fileName, data: parsed, mapping }
     ]);
+    
     setShowMapper(null);
+    // Trigger next file in queue
+    setTimeout(() => processNextInQueue(), 100);
   };
 
   return {
     showMapper,
     setShowMapper,
+    handleFiles,
     handleFileDrop,
     handleMappingConfirm
   };

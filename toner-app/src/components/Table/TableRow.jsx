@@ -1,3 +1,4 @@
+import { Star, TrendingUp, ShoppingCart } from 'lucide-react';
 import PriceDisplay from './PriceDisplay';
 
 const TableRow = ({ 
@@ -18,44 +19,50 @@ const TableRow = ({
 
   return (
     <tr className="table-row">
-      <td style={{ textAlign: 'center' }}>
-        <button onClick={() => onToggleFavorite(item.id)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
-          {isFavorite ? '⭐' : '☆'}
+      <td className="action-cell">
+        <button 
+          onClick={() => onToggleFavorite(item.id)} 
+          className={`btn-icon favorite ${isFavorite ? 'active' : ''}`}
+        >
+          <Star size={18} fill={isFavorite ? "currentColor" : "none"} />
         </button>
       </td>
-      <td style={{ textAlign: 'center' }}>
+      
+      <td className="action-cell">
         {isFavorite && (
-          <button onClick={() => onShowHistory(item)} style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: '1rem' }}>
-            📈
+          <button 
+            onClick={() => onShowHistory(item)} 
+            className="btn-icon history"
+            title="Ver Histórico de Preços"
+          >
+            <TrendingUp size={18} />
           </button>
         )}
       </td>
-      <td style={{ width: '120px', textAlign: 'center' }}>
-        <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+      
+      <td className="cart-cell">
+        <div className="cart-input-group">
           <input 
             type="number" 
             min="1" 
             defaultValue="1" 
-            style={{ width: '40px' }}
+            className="qty-input"
             id={`qty-${item.id}`}
           />
           <button 
             onClick={() => onAddToCart(item.id, document.getElementById(`qty-${item.id}`).value, bestFileId)}
-            className="btn-add-cart"
+            className="btn-add-cart-mini"
           >
-            +
+            <ShoppingCart size={14} />
           </button>
         </div>
       </td>
-      <td onClick={() => onToggleRow(item.id)}>
+      
+      <td className="product-info-cell" onClick={() => onToggleRow(item.id)}>
         <div className="product-name">{item.desc}</div>
-        <div className="product-subtext">
-           Ficheiro: <strong>{activeFiles.find(f => item.prices[f.id])?.name}</strong> (Linha {item.rowNumbers[Object.keys(item.rowNumbers)[0]]})
-        </div>
+        <div className="product-ref">REF: {bestRef}</div>
       </td>
-      <td>
-          <div className="ref-code" style={{ fontWeight: 600, color: 'var(--success)' }}>{bestRef}</div>
-      </td>
+      
       {activeFiles.map(f => (
         <PriceDisplay 
           key={f.id} 
@@ -64,13 +71,14 @@ const TableRow = ({
           trend={item.prices[f.id] === minPrice ? item.trend : null} 
         />
       ))}
-      <td style={{ textAlign: 'center' }}>
+      
+      <td className="savings-cell">
         {prices.length > 1 && savings > 0 ? (
-          <div className="best-offer-chip">
+          <div className="savings-badge">
             -{savings.toFixed(2)}€
           </div>
         ) : (
-          <span style={{ color: '#e4e4e7' }}>---</span>
+          <span className="no-data">---</span>
         )}
       </td>
     </tr>

@@ -1,4 +1,3 @@
-
 const RowDetails = ({ item, activeFiles, isFavorite }) => {
   const prices = Object.values(item.prices).filter(p => p > 0);
   
@@ -7,19 +6,29 @@ const RowDetails = ({ item, activeFiles, isFavorite }) => {
       <td colSpan={activeFiles.length + 6}>
         <div className="details-content animate-in">
           {isFavorite && prices.length > 0 && (
-            <div className="analytics-cards" style={{ marginTop: '10px', display: 'flex', gap: '15px', marginBottom: '10px' }}>
-              <span>Min: {Math.min(...prices).toFixed(2)}€</span>
-              <span>Avg: {(prices.reduce((a, b) => a + b, 0) / prices.length).toFixed(2)}€</span>
-              <span>Last: {prices[prices.length - 1].toFixed(2)}€</span>
+            <div className="analytics-bar">
+              <div className="stat-card">
+                <span className="stat-label">Mínimo</span>
+                <span className="stat-value">{Math.min(...prices).toFixed(2)}€</span>
+              </div>
+              <div className="stat-card">
+                <span className="stat-label">Média</span>
+                <span className="stat-value">{(prices.reduce((a, b) => a + b, 0) / prices.length).toFixed(2)}€</span>
+              </div>
+              <div className="stat-card">
+                <span className="stat-label">Máximo</span>
+                <span className="stat-value">{Math.max(...prices).toFixed(2)}€</span>
+              </div>
             </div>
           )}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '2rem' }}>
+          
+          <div className="references-grid">
             {Object.entries(item.refs).map(([fileId, ref]) => {
               const f = activeFiles.find(file => file.id.toString() === fileId.toString());
               return (
-                <div key={fileId}>
-                  <div className="ref-company" style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{f?.name}</div>
-                  <div className="ref-code">{ref}</div>
+                <div key={fileId} className="ref-card">
+                  <div className="ref-company-tag">{f?.name}</div>
+                  <div className="ref-code-value">{ref}</div>
                 </div>
               );
             })}

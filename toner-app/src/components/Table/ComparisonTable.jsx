@@ -1,5 +1,4 @@
 import { useState, Fragment } from 'react';
-import PriceHistoryModal from '../shared/PriceHistoryModal';
 import TableHeader from './TableHeader';
 import TableRow from './TableRow';
 import RowDetails from './RowDetails';
@@ -9,10 +8,10 @@ const ComparisonTable = ({
   activeFiles, 
   onAddToCart, 
   favorites, 
-  onToggleFavorite 
+  onToggleFavorite,
+  onShowHistory
 }) => {
   const [expandedRows, setExpandedRows] = useState(new Set());
-  const [showHistory, setShowHistory] = useState(null);
 
   const toggleRow = (id) => {
     setExpandedRows(prev => {
@@ -24,45 +23,36 @@ const ComparisonTable = ({
   };
 
   return (
-    <>
-      <table className="pro-table">
-        <TableHeader activeFiles={activeFiles} />
-        <tbody>
-          {comparisonData.map((item) => {
-            const isExpanded = expandedRows.has(item.id);
-            const isFavorite = favorites?.includes(item.id);
+    <table className="pro-table">
+      <TableHeader activeFiles={activeFiles} />
+      <tbody>
+        {comparisonData.map((item) => {
+          const isExpanded = expandedRows.has(item.id);
+          const isFavorite = favorites?.includes(item.id);
 
-            return (
-              <Fragment key={item.id}>
-                <TableRow 
-                  item={item}
-                  activeFiles={activeFiles}
-                  onAddToCart={onAddToCart}
-                  isFavorite={isFavorite}
-                  onToggleFavorite={onToggleFavorite}
-                  onShowHistory={setShowHistory}
-                  onToggleRow={toggleRow}
+          return (
+            <Fragment key={item.id}>
+              <TableRow 
+                item={item}
+                activeFiles={activeFiles}
+                onAddToCart={onAddToCart}
+                isFavorite={isFavorite}
+                onToggleFavorite={onToggleFavorite}
+                onShowHistory={onShowHistory}
+                onToggleRow={toggleRow}
+              />
+              {isExpanded && (
+                <RowDetails 
+                  item={item} 
+                  activeFiles={activeFiles} 
+                  isFavorite={isFavorite} 
                 />
-                {isExpanded && (
-                  <RowDetails 
-                    item={item} 
-                    activeFiles={activeFiles} 
-                    isFavorite={isFavorite} 
-                  />
-                )}
-              </Fragment>
-            );
-          })}
-        </tbody>
-      </table>
-      {showHistory && (
-        <PriceHistoryModal 
-          productId={showHistory.id} 
-          productName={showHistory.desc} 
-          onClose={() => setShowHistory(null)} 
-        />
-      )}
-    </>
+              )}
+            </Fragment>
+          );
+        })}
+      </tbody>
+    </table>
   );
 };
 
