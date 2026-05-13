@@ -57,18 +57,26 @@ export const TonerProvider = ({ children }) => {
     );
   };
 
-  const addToCart = (productId, qty) => {
+  const addToCart = (productId, qty, shopId) => {
     setCart(prev => ({
       ...prev,
-      [productId]: (prev[productId] || 0) + qty
+      [productId]: { 
+        qty: (prev[productId]?.qty || 0) + Number(qty), 
+        shopId 
+      }
     }));
   };
 
   const updateCart = (productId, qty) => {
-    setCart(prev => ({
-      ...prev,
-      [productId]: qty
-    }));
+    setCart(prev => {
+      const next = { ...prev };
+      if (Number(qty) <= 0) {
+        delete next[productId];
+      } else {
+        next[productId] = { ...next[productId], qty: Number(qty) };
+      }
+      return next;
+    });
   };
 
   const value = { activeFiles, setActiveFiles, cart, setCart, favorites, setFavorites, toggleFavorite, addToCart, updateCart, priceHistory };

@@ -39,11 +39,13 @@ const App = () => {
   const handleMappingConfirm = (mapping, rows) => {
     const parsed = parseWithMapping(rows, mapping, showMapper.fileName);
     
+    // Normalization helper (matches useProductComparison.js)
+    const normalizeRef = (ref) => ref ? ref.toLowerCase().replace(/[^a-z0-9]/g, '').trim() : '';
+    const normalizeDesc = (text) => text ? text.toLowerCase().replace(/\(.*\)/g, '').replace(/\s+/g, ' ').trim() : '';
+
     // Save history for favorites automatically
     parsed.forEach(item => {
-      // Need a key that matches the ID logic in useProductComparison
-      const key = (item.desc || '').toLowerCase().replace(/\(.*\)/g, '').replace(/\s+/g, ' ').trim() 
-                  || item.ref.trim().toLowerCase();
+      const key = normalizeRef(item.ref) || normalizeDesc(item.desc);
       savePriceHistory(key, item.price, favorites);
     });
 
@@ -54,8 +56,8 @@ const App = () => {
     setShowMapper(null);
   };
 
-  const handleAddToCart = (id, qty) => {
-    addToCart(id, qty);
+  const handleAddToCart = (id, qty, shopId) => {
+    addToCart(id, qty, shopId);
     setToast('Adicionado!');
     setTimeout(() => setToast(''), 2000);
   };
