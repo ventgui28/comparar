@@ -9,6 +9,11 @@ const normalizeDescription = (text) => {
     .trim();
 };
 
+const normalizeReference = (ref) => {
+  if (!ref) return '';
+  return ref.toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+};
+
 export const useProductComparison = (activeFiles, debouncedSearch, favorites = []) => {
   return useMemo(() => {
     if (!activeFiles || activeFiles.length === 0) return [];
@@ -23,9 +28,9 @@ export const useProductComparison = (activeFiles, debouncedSearch, favorites = [
         const matchesDesc = item.desc && item.desc.toLowerCase().includes(s);
         
         if (isSearchEmpty || matchesRef || matchesDesc) {
-          // Use normalized description as primary key
+          const normalizedRef = normalizeReference(item.ref);
           const normalizedDesc = normalizeDescription(item.desc);
-          const key = normalizedDesc || item.ref.trim().toLowerCase();
+          const key = normalizedRef || normalizedDesc; // Prioridade à referência normalizada
           
           if (!masterMap.has(key)) {
             masterMap.set(key, { 

@@ -1,6 +1,6 @@
 import { describe, test, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import ComparisonTable from './ComparisonTable';
+import ComparisonTable from './Table/ComparisonTable';
 import React from 'react';
 
 // Mock data
