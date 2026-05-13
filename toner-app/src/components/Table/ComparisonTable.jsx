@@ -8,7 +8,7 @@ const PriceDisplay = ({ price, isBest, trend }) => (
       <div className="price-wrapper" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <span className="price-value">{price.toFixed(2)}€</span>
         {trend && (
-           <span className={`trend-badge ${trend.type}`} title={trend.type === 'min' ? 'Preço Mínimo Histórico' : `Variação: ${trend.percent.toFixed(1)}%`}>
+           <span className={`trend-badge ${trend.type}`} title={trend.type === 'min' ? 'Preço Mínimo Histórico' : `${trend.type === 'up' ? 'Aumento' : 'Queda'}: ${trend.percent.toFixed(1)}%`}>
              {trend.type === 'min' ? '🔥' : trend.type === 'up' ? '↑' : '↓'} 
              {Math.abs(trend.percent).toFixed(0)}%
            </span>
@@ -100,7 +100,12 @@ const ComparisonTable = ({ comparisonData, activeFiles, onAddToCart, favorites, 
                     <div className="ref-code" style={{ fontWeight: 600, color: 'var(--success)' }}>{bestRef}</div>
                 </td>
                 {activeFiles.map(f => (
-                  <PriceDisplay key={f.id} price={item.prices[f.id]} isBest={item.prices[f.id] === minPrice && prices.length > 1} trend={item.trend} />
+                  <PriceDisplay 
+                    key={f.id} 
+                    price={item.prices[f.id]} 
+                    isBest={item.prices[f.id] === minPrice && prices.length > 1} 
+                    trend={item.prices[f.id] === minPrice ? item.trend : null} 
+                  />
                 ))}
                 <td style={{ textAlign: 'center' }}>
                   {prices.length > 1 && savings > 0 ? (
