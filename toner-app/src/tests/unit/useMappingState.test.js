@@ -1,6 +1,18 @@
-import { renderHook, act } from '@testing-library/react';
-import { describe, it, expect, beforeEach } from 'vitest';
+import { renderHook, act, waitFor } from '@testing-library/react';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import useMappingState from '../../hooks/useMappingState';
+import * as db from '../../utils/db';
+
+vi.mock('../../utils/db', () => ({
+  getProfiles: vi.fn(),
+  deleteProfile: vi.fn(),
+  initDB: vi.fn(),
+  saveProfile: vi.fn(),
+  getPriceHistory: vi.fn(),
+  savePriceHistory: vi.fn(),
+  saveFiles: vi.fn(),
+  loadFiles: vi.fn()
+}));
 
 describe('useMappingState', () => {
   const sheetNames = ['Sheet1', 'Sheet2'];
@@ -15,8 +27,13 @@ describe('useMappingState', () => {
     ]
   };
 
-  it('deve inicializar com valores padrão', () => {
-    const { result } = renderHook(() => useMappingState(sheetNames, sheetsData));
+  beforeEach(() => {
+    vi.clearAllMocks();
+    db.getProfiles.mockResolvedValue([]);
+  });
+
+  it('deve inicializar com valores padrão', async () => {
+    const { result } = renderHook(() => useMappingState(sheetNames, sheetsData, 'test.xlsx'));
 
     expect(result.current.selectedSheet).toBe('Sheet1');
     expect(result.current.activeSlot).toBe('ref');
@@ -25,7 +42,43 @@ describe('useMappingState', () => {
     expect(result.current.currentData).toEqual(sheetsData['Sheet1']);
   });
 
-  it('deve mudar a folha selecionada e limpar estados', () => {
+  it('deve carregar perfis e detetar correspondência pelo nome do ficheiro', async () => {
+    const mockProfiles = [
+      { name: 'FORNECEDOR_A', mapping: { ref: { start: { r: 1, c: 0 }, end: null }, name: { start: null, end: null }, price: { start: null, end: null } } }
+    ];
+    db.getProfiles.mockResolvedValue(mockProfiles);
+
+    const { result } = renderHook(() => useMappingState(sheetNames, sheetsData, 'FORNECEDOR_A_ABRIL.xlsx'));
+
+    await waitFor(() => {
+      expect(result.current.profiles).toEqual(mockProfiles);
+    });
+
+    expect(result.current.companyName).toBe('FORNECEDOR_A');
+    expect(result.current.selections.ref.start).toEqual({ r: 1, c: 0 });
+  });
+
+  it('deve eliminar perfil e atualizar estado', async () => {
+    const mockProfiles = [{ name: 'FORNECEDOR_A', mapping: {} }];
+    db.getProfiles.mockResolvedValueOnce(mockProfiles).mockResolvedValueOnce([]);
+    db.deleteProfile.mockResolvedValue(undefined);
+
+    const { result } = renderHook(() => useMappingState(sheetNames, sheetsData, 'FORNECEDOR_A.xlsx'));
+
+    await waitFor(() => {
+      expect(result.current.companyName).toBe('FORNECEDOR_A');
+    });
+
+    await act(async () => {
+      await result.current.handleDeleteProfile('FORNECEDOR_A');
+    });
+
+    expect(db.deleteProfile).toHaveBeenCalledWith('FORNECEDOR_A');
+    expect(result.current.profiles).toEqual([]);
+    expect(result.current.companyName).toBe('');
+  });
+
+  it('deve mudar a folha selecionada e limpar estados', async () => {
     const { result } = renderHook(() => useMappingState(sheetNames, sheetsData));
 
     act(() => {

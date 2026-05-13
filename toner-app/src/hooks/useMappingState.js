@@ -1,4 +1,5 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
+import { getProfiles, deleteProfile } from '../utils/db';
 
 const INITIAL_SELECTIONS = {
   ref: { start: null, end: null },
@@ -6,11 +7,37 @@ const INITIAL_SELECTIONS = {
   price: { start: null, end: null }
 };
 
-export const useMappingState = (sheetNames, sheetsData) => {
+export const useMappingState = (sheetNames, sheetsData, fileName) => {
   const [selectedSheet, setSelectedSheet] = useState(sheetNames[0]);
   const [activeSlot, setActiveSlot] = useState('ref');
   const [ignoredRows, setIgnoredRows] = useState(new Set());
   const [selections, setSelections] = useState(INITIAL_SELECTIONS);
+  const [companyName, setCompanyName] = useState('');
+  const [profiles, setProfiles] = useState([]);
+
+  useEffect(() => {
+    const load = async () => {
+      const all = await getProfiles();
+      setProfiles(all);
+      if (fileName) {
+        const match = all.find(p => fileName.toLowerCase().includes(p.name.toLowerCase()));
+        if (match) {
+          setCompanyName(match.name);
+          setSelections(match.mapping);
+        }
+      }
+    };
+    load();
+  }, [fileName]);
+
+  const handleDeleteProfile = useCallback(async (name) => {
+    await deleteProfile(name);
+    const all = await getProfiles();
+    setProfiles(all);
+    if (companyName === name) {
+      setCompanyName('');
+    }
+  }, [companyName]);
 
   const currentData = useMemo(() => sheetsData[selectedSheet] || [], [sheetsData, selectedSheet]);
 
@@ -92,7 +119,11 @@ export const useMappingState = (sheetNames, sheetsData) => {
     toggleIgnoreRow,
     handleCellClick,
     handleSheetChange,
-    resetSelections
+    resetSelections,
+    companyName,
+    setCompanyName,
+    profiles,
+    handleDeleteProfile
   };
 };
 
