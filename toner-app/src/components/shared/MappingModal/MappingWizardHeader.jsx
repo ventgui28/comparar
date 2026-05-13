@@ -14,6 +14,16 @@ const MappingWizardHeader = ({
   onDeleteProfile,
   profiles
 }) => {
+  const handleProfileSelect = (e) => {
+    const selectedName = e.target.value;
+    if (selectedName) {
+      setCompanyName(selectedName);
+    }
+  };
+
+  // Ensure select value defaults to empty if companyName is manual or doesn't match
+  const selectValue = profiles.some(p => p.name === companyName) ? companyName : "";
+
   return (
     <div className="wizard-header">
       <div className="profile-controls">
@@ -40,11 +50,8 @@ const MappingWizardHeader = ({
           <div className="profile-select-group">
             <select 
               className="pill" 
-              onChange={(e) => {
-                const p = profiles.find(p => p.name === e.target.value);
-                if (p) setCompanyName(p.name);
-              }}
-              value={companyName}
+              onChange={handleProfileSelect}
+              value={selectValue}
             >
               <option value="">Selecionar Perfil...</option>
               {profiles.map(p => <option key={p.name} value={p.name}>{p.name}</option>)}
