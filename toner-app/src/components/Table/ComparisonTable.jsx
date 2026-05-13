@@ -10,7 +10,7 @@ const PriceDisplay = ({ price, isBest, trend }) => (
         {trend && (
            <span className={`trend-badge ${trend.type}`} title={trend.type === 'min' ? 'Preço Mínimo Histórico' : `${trend.type === 'up' ? 'Aumento' : 'Queda'}: ${trend.percent.toFixed(1)}%`}>
              {trend.type === 'min' ? '🔥' : trend.type === 'up' ? '↑' : '↓'} 
-             {Math.abs(trend.percent).toFixed(0)}%
+             {Math.abs(trend.percent) >= 0.5 ? ` ${Math.abs(trend.percent).toFixed(0)}%` : ''}
            </span>
         )}
       </div>
