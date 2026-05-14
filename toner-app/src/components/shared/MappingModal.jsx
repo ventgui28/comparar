@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { X } from 'lucide-react';
 import useMappingState from '../../hooks/useMappingState';
 import MappingWizardHeader from './MappingModal/MappingWizardHeader';
 import MappingPreviewTable from './MappingModal/MappingPreviewTable';
@@ -74,6 +75,8 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
   return (
     <div className="modal-overlay">
       <div className="modal-content animate-in">
+        <button onClick={onCancel} className="btn-close-modal" title="Fechar"><X size={20} /></button>
+
         <MappingWizardHeader 
           fileName={fileName}
           sheetNames={sheetNames}

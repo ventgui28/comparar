@@ -4,16 +4,17 @@ const AliasesModal = ({ aliases, onRemove, onClose }) => {
   return (
     <div className="modal-overlay">
       <div className="modal-content animate-in" style={{ maxWidth: '600px' }}>
+        <button onClick={onClose} className="btn-close-modal" title="Fechar"><X size={20} /></button>
+        
         <div className="modal-header">
           <div className="header-text">
             <h2>Gerir Uniões Manuais</h2>
             <p className="subtitle">Tens {aliases.length} uniões ativas que serão aplicadas a todas as tabelas.</p>
           </div>
-          <button onClick={onClose} className="btn-icon"><X size={20} /></button>
         </div>
 
-        <div className="modal-body" style={{ padding: '1.5rem 0' }}>
-          <div className="aliases-list" style={{ maxHeight: '400px', overflowY: 'auto' }}>
+        <div className="modal-body">
+          <div className="aliases-list" style={{ maxHeight: '400px' }}>
             {aliases.length === 0 ? (
               <p style={{ textAlign: 'center', color: '#999', padding: '2rem' }}>Ainda não criaste nenhuma união manual.</p>
             ) : (
@@ -61,7 +62,7 @@ const AliasesModal = ({ aliases, onRemove, onClose }) => {
           </div>
         </div>
 
-        <div className="modal-footer" style={{ borderTop: '1px solid #eee', paddingTop: '1.2rem', textAlign: 'right' }}>
+        <div className="modal-footer">
           <button onClick={onClose} className="btn-primary">Fechar</button>
         </div>
       </div>

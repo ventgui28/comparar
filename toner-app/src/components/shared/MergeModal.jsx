@@ -38,15 +38,16 @@ const MergeModal = ({ sourceProduct, allProducts, onConfirm, onClose }) => {
   return (
     <div className="modal-overlay">
       <div className="modal-content animate-in" style={{ maxWidth: '500px' }}>
+        <button onClick={onClose} className="btn-close-modal" title="Fechar"><X size={20} /></button>
+
         <div className="modal-header">
           <div className="header-text">
             <h2>Unir Produtos Manualmente</h2>
             <p className="subtitle">Estás a unir: <strong>{sourceProduct.desc}</strong></p>
           </div>
-          <button onClick={onClose} className="btn-icon"><X size={20} /></button>
         </div>
 
-        <div className="modal-body" style={{ padding: '1.5rem 0' }}>
+        <div className="modal-body">
           {step === 1 ? (
             <div className="step-container">
               <label className="label-tiny">Pesquisar produto de destino</label>
@@ -153,7 +154,7 @@ const MergeModal = ({ sourceProduct, allProducts, onConfirm, onClose }) => {
           )}
         </div>
 
-        <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', borderTop: '1px solid #eee', paddingTop: '1.2rem' }}>
+        <div className="modal-footer">
           <button onClick={() => step === 2 ? setStep(1) : onClose()} className="btn-secondary">
             {step === 2 ? 'Voltar' : 'Cancelar'}
           </button>

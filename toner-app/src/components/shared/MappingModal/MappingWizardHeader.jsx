@@ -61,13 +61,17 @@ const MappingWizardHeader = ({
       </div>
 
       <div className="step-indicator-row">
-        {['ref', 'name', 'price'].map(slot => (
+        {[
+          { id: 'ref', label: 'REFERÊNCIA' },
+          { id: 'name', label: 'NOME' },
+          { id: 'price', label: 'PREÇO' }
+        ].map(slot => (
           <button 
-            key={slot}
-            className={`pill ${activeSlot === slot ? 'active' : ''}`}
-            onClick={() => setActiveSlot(slot)}
+            key={slot.id}
+            className={`pill slot-${slot.id} ${activeSlot === slot.id ? 'active' : ''}`}
+            onClick={() => setActiveSlot(slot.id)}
           >
-            {slot.toUpperCase()}
+            {slot.label}
           </button>
         ))}
       </div>

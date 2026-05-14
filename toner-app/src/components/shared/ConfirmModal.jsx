@@ -4,7 +4,9 @@ const ConfirmModal = ({ title, message, onConfirm, onCancel, confirmText = 'Conf
   return (
     <div className="modal-overlay">
       <div className="modal-content animate-in" style={{ maxWidth: '400px' }}>
-        <div className="modal-header" style={{ borderBottom: 'none', paddingBottom: '0.5rem' }}>
+        <button onClick={onCancel} className="btn-close-modal" title="Fechar"><X size={20} /></button>
+
+        <div className="modal-header" style={{ marginBottom: '1rem' }}>
           <div style={{ 
             width: '48px', 
             height: '48px', 
@@ -12,20 +14,18 @@ const ConfirmModal = ({ title, message, onConfirm, onCancel, confirmText = 'Conf
             background: variant === 'danger' ? '#fee2e2' : '#fef3c7',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            marginBottom: '1rem'
+            justifyContent: 'center'
           }}>
             <AlertTriangle size={24} color={variant === 'danger' ? '#ef4444' : '#f59e0b'} />
           </div>
-          <button onClick={onCancel} className="btn-icon"><X size={20} /></button>
         </div>
 
-        <div className="modal-body" style={{ textAlign: 'center', padding: '0 1rem 1.5rem 1rem' }}>
+        <div className="modal-body" style={{ textAlign: 'center' }}>
           <h2 style={{ marginBottom: '0.8rem', fontSize: '1.25rem' }}>{title}</h2>
           <p style={{ color: '#64748b', lineHeight: 1.5 }}>{message}</p>
         </div>
 
-        <div className="modal-footer" style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '1rem', borderTop: '1px solid #eee', paddingTop: '1.2rem' }}>
+        <div className="modal-footer" style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '1rem' }}>
           <button onClick={onCancel} className="btn-secondary">
             {cancelText}
           </button>

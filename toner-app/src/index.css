@@ -428,7 +428,7 @@ body {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(15, 23, 42, 0.4);
+  background: rgba(15, 23, 42, 0.6);
   backdrop-filter: blur(8px);
   z-index: 1000;
   display: flex;
@@ -442,12 +442,93 @@ body {
   max-width: 1600px;
   max-height: 95vh;
   border-radius: var(--radius-lg);
-  padding: 2rem;
-  box-shadow: 0 40px 100px rgba(0,0,0,0.2);
+  padding: 2.5rem;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.25);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   border: 1px solid var(--border-medium);
+  position: relative;
+}
+
+@media (max-width: 768px) {
+  .modal-content {
+    padding: 1.5rem;
+    width: 100%;
+    height: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+    border: none;
+  }
+  
+  .btn-close-modal {
+    top: 1rem;
+    right: 1rem;
+  }
+  
+  .modal-header h2 {
+    font-size: 1.25rem;
+  }
+}
+
+.btn-close-modal {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg-app);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  z-index: 100;
+}
+
+.btn-close-modal:hover {
+  background: #fee2e2;
+  color: var(--danger);
+  transform: rotate(90deg);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.modal-header h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.modal-header .subtitle {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+}
+
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.modal-footer {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
 }
 
 /* Animations */
@@ -1159,13 +1240,20 @@ body {
   border-radius: 2px;
 }
 
-.cell-selected.ref { background-color: #059669 !important; }
-.cell-selected.name { background-color: #10b981 !important; }
-.cell-selected.price { background-color: #34d399 !important; }
+/* Specific Slot Colors */
+.cell-selected.ref, .pill.slot-ref.active { background-color: #3b82f6 !important; border-color: #2563eb !important; }
+.cell-selected.name, .pill.slot-name.active { background-color: #10b981 !important; border-color: #059669 !important; }
+.cell-selected.price, .pill.slot-price.active { background-color: #f59e0b !important; border-color: #d97706 !important; }
 
-.range-ref { background-color: rgba(99, 102, 241, 0.1) !important; color: #4f46e5 !important; }
-.range-name { background-color: rgba(16, 185, 129, 0.1) !important; color: #059669 !important; }
-.range-price { background-color: rgba(245, 158, 11, 0.1) !important; color: #d97706 !important; }
+/* Range background colors (10% opacity of the main color) */
+.range-ref { background-color: rgba(59, 130, 246, 0.1) !important; color: #3b82f6 !important; }
+.range-name { background-color: rgba(16, 185, 129, 0.1) !important; color: #10b981 !important; }
+.range-price { background-color: rgba(245, 158, 11, 0.1) !important; color: #f59e0b !important; }
+
+/* Hover states for non-active pills */
+.pill.slot-ref:not(.active):hover { border-color: #3b82f6; color: #3b82f6; background: rgba(59, 130, 246, 0.05); }
+.pill.slot-name:not(.active):hover { border-color: #10b981; color: #10b981; background: rgba(16, 185, 129, 0.05); }
+.pill.slot-price:not(.active):hover { border-color: #f59e0b; color: #f59e0b; background: rgba(245, 158, 11, 0.05); }
 
 /* Highlight the whole column if selected */
 .preview-table td.range-ref, 
