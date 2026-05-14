@@ -118,12 +118,15 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
   return (
     <div className="modal-overlay">
       <div className="modal-content animate-in" style={{ display: 'flex', flexDirection: 'column', height: '90vh' }}>
-        <button 
-          onClick={toggleSidebar}
-          style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 10 }}
-        >
-          {isSidebarVisible ? 'Ocultar Config' : 'Mostrar Config'}
-        </button>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+          <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-main)', margin: 0 }}>Configurar Mapeamento</h2>
+          <button 
+            onClick={toggleSidebar}
+            style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', cursor: 'pointer', background: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: '6px' }}
+          >
+            {isSidebarVisible ? '« Ocultar Painel' : '» Mostrar Painel'}
+          </button>
+        </div>
 
         <div style={{ 
           display: 'grid', 
@@ -135,16 +138,11 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
           {isSidebarVisible && (
             <aside className="mapping-sidebar">
               <div className="wizard-header">
-                {/* 1. Título e Folha */}
-                <div style={{ marginBottom: '1.2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-main)', margin: 0 }}>Configurar Mapeamento</h2>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '0.2rem 0 0' }}>Ficheiro: <strong style={{ color: 'var(--primary)' }}>{fileName}</strong></p>
-                  </div>
-                  
-                  <div className="profile-input-group" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.3rem' }}>
+                {/* 1. Folha */}
+                <div style={{ marginBottom: '1.2rem' }}>
+                  <div className="profile-input-group" style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
                     <label className="label-tiny" style={{ fontSize: '0.65rem', fontWeight: 700, opacity: 0.7 }}>FOLHA DO EXCEL</label>
-                    <select className="pill" style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem' }} value={selectedSheet} onChange={(e) => handleSheetChange(e.target.value)}>
+                    <select className="pill" style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem', width: '100%' }} value={selectedSheet} onChange={(e) => handleSheetChange(e.target.value)}>
                       {sheetNames.map(n => <option key={n} value={n}>{n}</option>)}
                     </select>
                   </div>
