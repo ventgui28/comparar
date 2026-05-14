@@ -47,6 +47,7 @@ const App = () => {
   const [toasts, setToasts] = useState([]);
   const [forceManual, setForceManual] = useState(false);
   const dropdownRef = useRef(null);
+  const prevFilesLength = useRef(null);
 
   const addToast = useCallback((message, type = 'success', options = {}) => {
     const id = Date.now();
@@ -144,11 +145,24 @@ const App = () => {
 
   // Clear cart whenever active files change to ensure price integrity
   useEffect(() => {
-    if (activeFiles && Object.keys(cart).length > 0) {
-      setCart({});
-      addToast("Carrinho limpo devido a alteração nos fornecedores.", "info", { duration: 3000 });
+    // 1. If still loading from DB, do nothing
+    if (activeFiles === null) return;
+
+    // 2. If this is the first time we have data (initial load), just store the length and return
+    if (prevFilesLength.current === null) {
+      prevFilesLength.current = activeFiles.length;
+      return;
     }
-  }, [activeFiles?.length]); // Safe access with optional chaining
+
+    // 3. If length changed after initial load, it was a user action (add/remove file)
+    if (prevFilesLength.current !== activeFiles.length) {
+      if (Object.keys(cart).length > 0) {
+        setCart({});
+        addToast("Carrinho limpo devido a alteração nos fornecedores.", "info", { duration: 3000 });
+      }
+      prevFilesLength.current = activeFiles.length;
+    }
+  }, [activeFiles?.length, cart, addToast, setCart]); // Monitor length changes after hydration
 
   useEffect(() => {
     const handler = setTimeout(() => setDebouncedSearch(searchTerm), SEARCH_DEBOUNCE_MS);
