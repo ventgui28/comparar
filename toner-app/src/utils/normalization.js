@@ -13,5 +13,5 @@ export const normalizeReference = (ref) => {
 };
 
 export const getProductKey = (item) => {
-  return normalizeReference(item.ref) || normalizeDescription(item.desc);
+  return normalizeDescription(item.desc) || normalizeReference(item.ref);
 };

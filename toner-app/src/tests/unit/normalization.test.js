@@ -68,14 +68,14 @@ describe('normalization utilities', () => {
   });
 
   describe('getProductKey', () => {
-    it('should use normalized reference if present', () => {
+    it('should use normalized description even if reference is present', () => {
       const item = { ref: 'CF217-A', desc: 'HP 17A Black' };
-      expect(getProductKey(item)).toBe('cf217a');
+      expect(getProductKey(item)).toBe('hp 17a black');
     });
 
-    it('should use normalized description if reference is missing', () => {
-      const item = { ref: '', desc: 'HP 17A Black (NEW)' };
-      expect(getProductKey(item)).toBe('hp 17a black');
+    it('should use normalized reference if description is missing', () => {
+      const item = { ref: 'CF217-A', desc: '' };
+      expect(getProductKey(item)).toBe('cf217a');
     });
 
     it('should handle missing both ref and desc', () => {

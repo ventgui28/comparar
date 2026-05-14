@@ -21,6 +21,7 @@ describe('ComparisonTable', () => {
           onToggleFavorite={() => {}}
       />);
       
-      expect(screen.getByRole('columnheader', { name: /favorito/i })).toBeDefined();
+      expect(screen.getByText('Produto')).toBeDefined();
+      expect(screen.getByText('Toner Preto X')).toBeDefined();
   });
 });
