@@ -89,21 +89,6 @@ const App = () => {
     });
   };
 
-  const removeAllFilesWithUndo = () => {
-    const filesToRemove = [...activeFiles];
-    if (filesToRemove.length === 0) return;
-    
-    setActiveFiles([]);
-    
-    addToast(`${filesToRemove.length} ficheiros removidos`, 'info', {
-      duration: 6000,
-      action: { label: 'Desfazer', icon: 'undo' },
-      onAction: () => {
-        setActiveFiles(prev => [...prev, ...filesToRemove]);
-      }
-    });
-  };
-
   const { 
     showMapper, 
     setShowMapper, 
@@ -344,9 +329,6 @@ const App = () => {
                   </button>
                 </div>
               ))}
-              <button onClick={removeAllFilesWithUndo} className="btn-clear-all">
-                Limpar Tudo
-              </button>
             </div>
           </section>
         )}
