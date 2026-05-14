@@ -111,11 +111,11 @@ const App = () => {
 
   // Clear cart whenever active files change to ensure price integrity
   useEffect(() => {
-    if (Object.keys(cart).length > 0) {
+    if (activeFiles && Object.keys(cart).length > 0) {
       setCart({});
       addToast("Carrinho limpo devido a alteração nos fornecedores.", "info", { duration: 3000 });
     }
-  }, [activeFiles.length]); // Simplified check: clear when count changes
+  }, [activeFiles?.length]); // Safe access with optional chaining
 
   useEffect(() => {
     const handler = setTimeout(() => setDebouncedSearch(searchTerm), SEARCH_DEBOUNCE_MS);
