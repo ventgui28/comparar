@@ -458,7 +458,7 @@ body {
   text-transform: uppercase;
 }
 
-/* Modals */
+/* Mapping Modal (Existing) */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -486,6 +486,42 @@ body {
   overflow: hidden;
   border: 1px solid var(--border-medium);
   position: relative;
+}
+
+/* New: Mapping Modal Grid Layout */
+.mapping-modal-grid {
+  display: grid;
+  grid-template-columns: var(--sidebar-width, 300px) 1fr;
+  gap: 2rem;
+  height: 100%;
+  overflow: hidden;
+}
+
+.mapping-sidebar {
+  border-right: 1px solid var(--border-light);
+  overflow-y: auto;
+  padding-right: 1rem;
+}
+
+.preview-container {
+  flex: 1;
+  overflow: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-medium);
+  background: white;
+  margin: 1rem 0;
+}
+
+@media (max-width: 1024px) {
+  .mapping-modal-grid {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+  .mapping-sidebar {
+    border-right: none;
+    border-bottom: 1px solid var(--border-light);
+    padding-bottom: 2rem;
+  }
 }
 
 @media (max-width: 768px) {
