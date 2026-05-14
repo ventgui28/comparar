@@ -87,15 +87,15 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
   const warningContent = useMemo(() => {
     if (!companyName || !companyName.trim()) {
       return {
-        title: "Atenção ao Nome da Empresa",
-        message: "Não definiu um nome para esta empresa/fornecedor. Sem o nome, o sistema não conseguirá guardar este mapeamento para utilização futura e será mais difícil identificar a origem destes preços na tabela de comparação.",
+        title: "Atenção ao Nome do Fornecedor",
+        message: "Não definiu um nome para este fornecedor. Sem o nome, o sistema não conseguirá guardar este mapeamento para utilização futura e será mais difícil identificar a origem destes preços na tabela de comparação.",
         confirmText: "Continuar sem nome",
         cancelText: "Voltar e definir"
       };
     }
     return {
-      title: "Atenção ao Nome da Empresa",
-      message: `O nome da empresa definido ('${companyName}') não parece coincidir com o nome do ficheiro. Isto pode dificultar a identificação automática do perfil no futuro.`,
+      title: "Atenção ao Nome do Fornecedor",
+      message: `O nome do fornecedor definido ('${companyName}') não parece coincidir com o nome do ficheiro. Isto pode dificultar a identificação automática do perfil no futuro.`,
       confirmText: "Continuar assim",
       cancelText: "Corrigir nome"
     };

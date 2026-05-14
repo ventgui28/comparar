@@ -57,8 +57,8 @@ describe('MappingModal Validation', () => {
     const confirmButton = screen.getByText('Confirmar Mapeamento');
     fireEvent.click(confirmButton);
 
-    expect(await screen.findByText('Atenção ao Nome da Empresa')).toBeDefined();
-    expect(screen.getByText(/Não definiu um nome para esta empresa/)).toBeDefined();
+    expect(await screen.findByText('Atenção ao Nome do Fornecedor')).toBeDefined();
+    expect(screen.getByText(/Não definiu um nome para este fornecedor/)).toBeDefined();
   });
 
   it('should show warning when company name does not match filename', async () => {
@@ -71,8 +71,8 @@ describe('MappingModal Validation', () => {
     const confirmButton = screen.getByText('Confirmar Mapeamento');
     fireEvent.click(confirmButton);
 
-    expect(await screen.findByText('Atenção ao Nome da Empresa')).toBeDefined();
-    expect(screen.getByText(/O nome da empresa definido \('Wrong Company'\) não parece coincidir/)).toBeDefined();
+    expect(await screen.findByText('Atenção ao Nome do Fornecedor')).toBeDefined();
+    expect(screen.getByText(/O nome do fornecedor definido \('Wrong Company'\) não parece coincidir/)).toBeDefined();
   });
 
   it('should not show warning when company name matches filename', async () => {
@@ -87,7 +87,7 @@ describe('MappingModal Validation', () => {
 
     // Should NOT show warning modal, instead call onConfirm
     await waitFor(() => {
-      expect(screen.queryByText('Atenção ao Nome da Empresa')).toBeNull();
+      expect(screen.queryByText('Atenção ao Nome do Fornecedor')).toBeNull();
       expect(defaultProps.onConfirm).toHaveBeenCalled();
     });
   });

@@ -55,8 +55,7 @@ const ResetModal = ({ onConfirm, onClose }) => {
             </label>
             <label style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', cursor: 'pointer' }}>
               <input type="checkbox" checked={options.aliases} onChange={() => toggleOption('aliases')} />
-              <span>Uniões de Produtos (Aliases)</span>
-            </label>
+              <span>Uniões de Toners/Tinteiros (Aliases)</span>            </label>
             <label style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', cursor: 'pointer' }}>
               <input type="checkbox" checked={options.profiles} onChange={() => toggleOption('profiles')} />
               <span>Perfis de Mapeamento</span>

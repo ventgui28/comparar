@@ -21,12 +21,12 @@ describe('MappingWizardHeader', () => {
 
   it('deve renderizar as instruções iniciais', () => {
     render(<MappingWizardHeader {...defaultProps} />);
-    expect(screen.getByText(/Para importar os produtos, selecione cada opção/)).toBeDefined();
+    expect(screen.getByText(/Para importar os toners\/tinteiros, selecione cada opção/)).toBeDefined();
   });
 
   it('deve mostrar a dica correta para o slot ativo', () => {
     const { rerender } = render(<MappingWizardHeader {...defaultProps} />);
-    expect(screen.getByText(/Clique na primeira célula com um código de produto/i)).toBeDefined();
+    expect(screen.getByText(/Clique na primeira célula com um código de toner\/tinteiro/i)).toBeDefined();
 
     rerender(<MappingWizardHeader {...defaultProps} activeSlot="price" />);
     expect(screen.getByText(/Clique na primeira célula com o valor de venda/i)).toBeDefined();

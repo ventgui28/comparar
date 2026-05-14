@@ -17,7 +17,7 @@ export const CartManager = ({ cart, products, activeFiles, aliases = [], isOpen,
         if (!prod) {
           return {
             id: alias.targetId,
-            desc: alias.targetName || 'Produto unido',
+            desc: alias.targetName || 'Toner/Tinteiro unido',
             prices: {},
             refs: {}
           };
@@ -96,7 +96,7 @@ export const CartManager = ({ cart, products, activeFiles, aliases = [], isOpen,
                 return (
                   <li key={prodId} className="cart-item">
                     <div className="item-info">
-                      <div className="item-name">{prod?.desc || 'Produto não encontrado'}</div>
+                      <div className="item-name">{prod?.desc || 'Toner/Tinteiro não encontrado'}</div>
                       <div className="item-meta">
                         <span className="item-price">{price.toFixed(2)}€</span>
                         <span className="item-multiply">×</span>

@@ -377,7 +377,7 @@ const App = () => {
                       {totalPages > 1 ? (
                         <>Página <strong>{currentPage}</strong> de {totalPages}</>
                       ) : (
-                        <span>Todos os produtos</span>
+                        <span>Todos os toners/tinteiros</span>
                       )}
                       <span className="total-results">({comparisonData.length} resultados)</span>
                     </div>
@@ -404,9 +404,9 @@ const App = () => {
                 ) : activeFiles.length === 0 ? (
                   <p>Carregue pelo menos um ficheiro para começar.</p>
                 ) : debouncedSearch ? (
-                  <p>Nenhum produto encontrado para "<strong>{debouncedSearch}</strong>".</p>
+                  <p>Nenhum toner/tinteiro encontrado para "<strong>{debouncedSearch}</strong>".</p>
                 ) : (
-                  <p>Ficheiros carregados, mas sem produtos em comum.<br/>Tenta pesquisar um modelo específico.</p>
+                  <p>Ficheiros carregados, mas sem toners/tinteiros em comum.<br/>Tenta pesquisar um modelo específico.</p>
                 )}
               </div>
             )}
@@ -459,7 +459,7 @@ const App = () => {
       {confirmUnmerge && (
         <ConfirmModal
           title="Desunir Grupo"
-          message="Tens a certeza que desejas desunir este grupo? Todos os produtos voltarão a ser linhas separadas."
+          message="Tens a certeza que desejas desunir este grupo? Todos os toners/tinteiros voltarão a ser linhas separadas."
           confirmText="Sim, Desunir"
           cancelText="Cancelar"
           onConfirm={() => {

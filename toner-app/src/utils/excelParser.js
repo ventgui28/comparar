@@ -82,7 +82,7 @@ export const parseWithMapping = (rows, mapping, fileName) => {
       const desc = String(row[descCol] || '').trim();
       const price = parsePrice(row[priceCol]);
 
-      // Permite produtos que tenham pelo menos uma identificação (ref ou desc) e preço
+      // Permite toners/tinteiros que tenham pelo menos uma identificação (ref ou desc) e preço
       if ((ref || desc) && price > 0) {
         products.push({ ref, desc, price, fileName, rowIdx: row.__rowIdx || (i + 1) });
       }

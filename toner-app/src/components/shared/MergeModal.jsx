@@ -42,16 +42,14 @@ const MergeModal = ({ sourceProduct, allProducts, onConfirm, onClose }) => {
 
         <div className="modal-header">
           <div className="header-text">
-            <h2>Unir Produtos Manualmente</h2>
-            <p className="subtitle">Estás a unir: <strong>{sourceProduct.desc}</strong></p>
+            <h2>Unir Toners/Tinteiros Manualmente</h2>            <p className="subtitle">Estás a unir: <strong>{sourceProduct.desc}</strong></p>
           </div>
         </div>
 
         <div className="modal-body">
           {step === 1 ? (
             <div className="step-container">
-              <label className="label-tiny">Pesquisar produto de destino</label>
-              <div className="search-container" style={{ margin: '0.5rem 0 1rem 0' }}>
+              <label className="label-tiny">Pesquisar toner/tinteiro de destino</label>              <div className="search-container" style={{ margin: '0.5rem 0 1rem 0' }}>
                 <Search className="search-icon" size={18} />
                 <input 
                   type="text" 
@@ -88,8 +86,7 @@ const MergeModal = ({ sourceProduct, allProducts, onConfirm, onClose }) => {
                   </div>
                 ))}
                 {searchTerm.length >= 2 && filteredProducts.length === 0 && (
-                  <p style={{ textAlign: 'center', color: '#999', fontSize: '0.9rem' }}>Nenhum produto encontrado.</p>
-                )}
+                  <p style={{ textAlign: 'center', color: '#999', fontSize: '0.9rem' }}>Nenhum toner/tinteiro encontrado.</p>                )}
                 {searchTerm.length < 2 && (
                   <p style={{ textAlign: 'center', color: '#999', fontSize: '0.9rem' }}>Digita pelo menos 2 caracteres para pesquisar.</p>
                 )}

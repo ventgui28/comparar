@@ -5,7 +5,7 @@ Aplicação React para comparar preços de consumíveis a partir de tabelas Exce
 ## Funcionalidades
 - Importação de ficheiros Excel com mapeamento flexível de colunas.
 - Normalização inteligente de referências para agrupamento automático.
-- Histórico de preços local (IndexedDB) para produtos favoritos.
+- Histórico de preços local (IndexedDB) para toners/tinteiros favoritos.
 - Visualização de tendências e melhores ofertas.
 
 ## Tecnologias

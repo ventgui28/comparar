@@ -25,8 +25,8 @@ const MappingWizardHeader = ({
 
   const getSlotHint = () => {
     const baseHints = {
-      ref: "Clique na primeira célula com um código de produto. Se clicar numa segunda célula na mesma coluna, o sistema apenas importará os dados entre esses dois pontos.",
-      name: "Clique na primeira célula com a descrição ou nome do produto. Pode limitar o fim da lista clicando numa segunda célula abaixo.",
+      ref: "Clique na primeira célula com um código de toner/tinteiro. Se clicar numa segunda célula na mesma coluna, o sistema apenas importará os dados entre esses dois pontos.",
+      name: "Clique na primeira célula com a descrição ou nome do toner/tinteiro. Pode limitar o fim da lista clicando numa segunda célula abaixo.",
       price: "Clique na primeira célula com o valor de venda. Tal como nas outras, pode clicar numa segunda célula para definir o limite inferior."
     };
     return baseHints[activeSlot];
@@ -55,7 +55,7 @@ const MappingWizardHeader = ({
           <div className="profile-input-group">
             <input 
               type="text" 
-              placeholder="Nome da Empresa..." 
+              placeholder="Nome do Fornecedor..." 
               value={companyName} 
               onChange={(e) => setCompanyName(e.target.value)}
               className="pill company-input"
@@ -96,7 +96,7 @@ const MappingWizardHeader = ({
       {/* 3. Caixa de Instruções (Novo Layout) */}
       <div className="instruction-box" style={{ background: '#f8fafc', padding: '1rem', borderRadius: '12px', marginBottom: '1rem', border: '1px solid #e2e8f0', textAlign: 'center' }}>
         <p style={{ fontSize: '0.85rem', color: '#334155', fontWeight: 500, marginBottom: '1rem' }}>
-          Para importar os produtos, selecione cada opção e clique na coluna correspondente:
+          Para importar os toners/tinteiros, selecione cada opção e clique na coluna correspondente:
         </p>
 
         <div className="step-indicator-row" style={{ justifyContent: 'center', gap: '1rem', marginBottom: '1.2rem' }}>

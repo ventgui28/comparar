@@ -40,7 +40,7 @@ const TableRow = ({
               <button 
                 onClick={() => onUnmerge(item.id)} 
                 className="btn-icon history"
-                title="Desunir Produtos (Separar tudo)"
+                title="Desunir Toners/Tinteiros (Separar tudo)"
                 style={{ color: '#ef4444' }}
               >
                 <Link2Off size={18} />

@@ -31,12 +31,12 @@ describe('DB Profiles Persistence', () => {
   });
 
   it('saveProfile should call db.put with profile data and name as key', async () => {
-    const profile = { name: 'Empresa A', mapping: { 'col1': 'field1' } };
+    const profile = { name: 'Fornecedor A', mapping: { 'col1': 'field1' } };
     const now = Date.now();
     await saveProfile(profile);
     
     expect(mockDb.put).toHaveBeenCalledWith('profiles', expect.objectContaining({
-      name: 'Empresa A',
+      name: 'Fornecedor A',
       mapping: { 'col1': 'field1' },
       updatedAt: expect.any(Number)
     }));
@@ -56,7 +56,7 @@ describe('DB Profiles Persistence', () => {
   });
 
   it('deleteProfile should call db.delete with profile name', async () => {
-    await deleteProfile('Empresa A');
-    expect(mockDb.delete).toHaveBeenCalledWith('profiles', 'Empresa A');
+    await deleteProfile('Fornecedor A');
+    expect(mockDb.delete).toHaveBeenCalledWith('profiles', 'Fornecedor A');
   });
 });

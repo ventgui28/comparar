@@ -21,7 +21,7 @@ describe('ComparisonTable', () => {
           onToggleFavorite={() => {}}
       />);
       
-      expect(screen.getByText('Produto')).toBeDefined();
+      expect(screen.getByText('Toner/Tinteiro')).toBeDefined();
       expect(screen.getByText('Toner Preto X')).toBeDefined();
   });
 });
