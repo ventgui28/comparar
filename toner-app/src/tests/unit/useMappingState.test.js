@@ -151,7 +151,7 @@ describe('useMappingState', () => {
     expect(result.current.selections.name.start).toEqual({ r: 0, c: 1 });
   });
 
-  it('deve resetar seleções', () => {
+  it('deve limpar seleções', () => {
     const { result } = renderHook(() => useMappingState(sheetNames, sheetsData));
 
     act(() => {

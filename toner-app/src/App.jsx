@@ -279,7 +279,7 @@ const App = () => {
             
             <div className="reset-group" ref={dropdownRef}>
               <button onClick={() => setShowResetModal(true)} className="btn-reset">
-                Reset
+                Limpar
               </button>
               <button 
                 onClick={(e) => {
@@ -287,7 +287,7 @@ const App = () => {
                   setShowResetDropdown(!showResetDropdown);
                 }} 
                 className="btn-reset-arrow"
-                title="Opções de Reset"
+                title="Opções de Limpeza"
               >
                 <ChevronDown size={14} />
               </button>
@@ -296,7 +296,7 @@ const App = () => {
                 <div className="dropdown-menu animate-in">
                   <button onClick={() => { granularReset({ cart: true }); setShowResetDropdown(false); }}>Limpar Carrinho</button>
                   <button onClick={() => { granularReset({ files: true, cart: true }); setShowResetDropdown(false); }}>Limpar Sessão</button>
-                  <button onClick={() => { handleResetTotal(); setShowResetDropdown(false); }}>Reset Total</button>
+                  <button onClick={() => { handleResetTotal(); setShowResetDropdown(false); }}>Limpar Tudo</button>
                   <button onClick={() => { setShowResetModal(true); setShowResetDropdown(false); }}>Personalizado...</button>
                 </div>
               )}
