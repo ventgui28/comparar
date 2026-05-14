@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { readRawExcel, parseWithMapping } from '../utils/excelParser';
+import { getProfiles } from '../utils/db';
 
 export const useExcelHandler = (setActiveFiles, clearCart, addToast) => {
   const [showMapper, setShowMapper] = useState(null);
@@ -24,7 +25,29 @@ export const useExcelHandler = (setActiveFiles, clearCart, addToast) => {
     if (!file) return;
     try {
       const excelBundle = await readRawExcel(file);
-      setShowMapper({ fileName: file.name, excelBundle });
+      const profiles = await getProfiles();
+      
+      const match = profiles.find(p => 
+        file.name.toLowerCase().includes(p.name.toLowerCase())
+      );
+
+      if (match) {
+        const rows = excelBundle.sheets[excelBundle.sheetNames[0]];
+        const parsed = parseWithMapping(rows, match.mapping, file.name);
+        
+        setActiveFiles(prev => [
+          ...(prev || []).filter(f => f.name !== file.name), 
+          { id: Date.now(), name: file.name, data: parsed, mapping: match.mapping }
+        ]);
+
+        if (typeof addToast === 'function') {
+          addToast(`Importado automaticamente: ${match.name}`, 'success');
+        }
+        
+        processNextInQueue();
+      } else {
+        setShowMapper({ fileName: file.name, excelBundle });
+      }
     } catch (err) {
       console.error(err);
       alert(`Erro ao processar ${file.name}`);
@@ -73,6 +96,10 @@ export const useExcelHandler = (setActiveFiles, clearCart, addToast) => {
       { id: Date.now(), name: showMapper.fileName, data: parsed, mapping }
     ]);
     
+    if (typeof addToast === 'function') {
+      addToast(`Ficheiro importado: ${showMapper.fileName}`, 'success');
+    }
+
     setShowMapper(null);
     // Trigger next file in queue
     setTimeout(() => processNextInQueue(), 100);
