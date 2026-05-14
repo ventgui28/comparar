@@ -23,7 +23,7 @@ describe('groupAndCompareProducts', () => {
     const results = groupAndCompareProducts(activeFiles, '');
 
     expect(results.length).toBe(1);
-    expect(results[0].id).toBe('refa');
+    expect(results[0].id).toBe('toner 17a');
     expect(results[0].prices['file1']).toBe(10);
     expect(results[0].prices['file2']).toBe(12);
   });
@@ -49,7 +49,7 @@ describe('groupAndCompareProducts', () => {
     const results = groupAndCompareProducts(activeFiles, '');
 
     expect(results.length).toBe(1);
-    expect(results[0].id).toBe('sameref');
+    expect(results[0].id).toBe('toner a');
   });
 
   it('should filter results based on search term in reference', () => {
@@ -67,7 +67,7 @@ describe('groupAndCompareProducts', () => {
     const results = groupAndCompareProducts(activeFiles, '217');
 
     expect(results.length).toBe(1);
-    expect(results[0].id).toBe('cf217a');
+    expect(results[0].id).toBe('toner 17a');
   });
 
   it('should include trend data when priceHistory is provided', () => {
@@ -80,7 +80,7 @@ describe('groupAndCompareProducts', () => {
     ];
 
     const priceHistory = {
-      'cf217a': {
+      'toner 17a': {
         records: [
           { date: '2024-01-01', price: 10 }
         ]
@@ -93,5 +93,33 @@ describe('groupAndCompareProducts', () => {
     expect(results[0].trend).not.toBeNull();
     expect(results[0].trend.type).toBe('min');
     expect(results[0].trend.percent).toBeCloseTo(-10);
+  });
+
+  it('should redirect products to target group when a manual alias is provided', () => {
+    const activeFiles = [
+      {
+        id: 'file1',
+        name: 'File 1',
+        data: [{ ref: 'REF-X', desc: 'Product X', price: 10, rowIdx: 1 }]
+      },
+      {
+        id: 'file2',
+        name: 'File 2',
+        data: [{ ref: 'REF-Y', desc: 'Product Y', price: 12, rowIdx: 2 }]
+      }
+    ];
+
+    // Create an alias: X -> Y
+    const manualAliases = [
+      { sourceId: 'product x', targetId: 'product y', targetName: 'Unified Product Name' }
+    ];
+
+    const results = groupAndCompareProducts(activeFiles, '', [], {}, manualAliases);
+
+    expect(results.length).toBe(1);
+    expect(results[0].id).toBe('product y');
+    expect(results[0].desc).toBe('Unified Product Name');
+    expect(results[0].prices['file1']).toBe(10);
+    expect(results[0].prices['file2']).toBe(12);
   });
 });

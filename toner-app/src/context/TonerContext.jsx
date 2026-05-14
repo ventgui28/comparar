@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { saveFiles, loadFiles, getPriceHistory, savePriceHistory } from '../utils/db';
+import { saveFiles, loadFiles, getPriceHistory, savePriceHistory, getAliases, saveAlias, deleteAlias } from '../utils/db';
 
 const TonerContext = createContext();
 
@@ -8,9 +8,11 @@ export const TonerProvider = ({ children }) => {
   const [cart, setCart] = useState(() => JSON.parse(localStorage.getItem('toner-cart')) || {});
   const [favorites, setFavorites] = useState(() => JSON.parse(localStorage.getItem('toner-favorites')) || []);
   const [priceHistory, setPriceHistory] = useState({});
+  const [aliases, setAliases] = useState([]);
 
   useEffect(() => {
     loadFiles().then(setActiveFiles);
+    getAliases().then(setAliases);
   }, []);
 
   useEffect(() => {
@@ -97,7 +99,40 @@ export const TonerProvider = ({ children }) => {
     });
   };
 
-  const value = { activeFiles, setActiveFiles, cart, setCart, favorites, setFavorites, toggleFavorite, addToCart, updateCart, priceHistory };
+  const addManualAlias = async (sourceId, targetId, targetName) => {
+    await saveAlias(sourceId, targetId, targetName);
+    const updated = await getAliases();
+    setAliases(updated);
+  };
+
+  const removeManualAlias = async (sourceId) => {
+    await deleteAlias(sourceId);
+    const updated = await getAliases();
+    setAliases(updated);
+  };
+
+  const removeManualGroup = async (targetId) => {
+    await deleteAliasesByTarget(targetId);
+    const updated = await getAliases();
+    setAliases(updated);
+  };
+
+  const value = { 
+    activeFiles, 
+    setActiveFiles, 
+    cart, 
+    setCart, 
+    favorites, 
+    setFavorites, 
+    toggleFavorite, 
+    addToCart, 
+    updateCart, 
+    priceHistory,
+    aliases,
+    addManualAlias,
+    removeManualGroup,
+    removeManualAlias
+  };
   return <TonerContext.Provider value={value}>{children}</TonerContext.Provider>;
 };
 

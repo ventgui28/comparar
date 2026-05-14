@@ -4,9 +4,10 @@ const DB_NAME = 'TonerAppDB';
 const ACTIVE_FILES_STORE = 'activeFiles';
 const PRICE_HISTORY_STORE = 'priceHistory';
 const PROFILES_STORE = 'profiles';
+const ALIASES_STORE = 'aliases';
 
 export const initDB = async () => {
-  return openDB(DB_NAME, 3, {
+  return openDB(DB_NAME, 4, {
     upgrade(db) {
       if (!db.objectStoreNames.contains(ACTIVE_FILES_STORE)) {
         db.createObjectStore(ACTIVE_FILES_STORE, { keyPath: 'id' });
@@ -17,8 +18,61 @@ export const initDB = async () => {
       if (!db.objectStoreNames.contains(PROFILES_STORE)) {
         db.createObjectStore(PROFILES_STORE, { keyPath: 'name' });
       }
+      if (!db.objectStoreNames.contains(ALIASES_STORE)) {
+        db.createObjectStore(ALIASES_STORE, { keyPath: 'sourceId' });
+      }
     },
   });
+};
+
+export const getAliases = async () => {
+  try {
+    const db = await initDB();
+    return await db.getAll(ALIASES_STORE);
+  } catch (error) {
+    console.error('Error getting aliases:', error);
+    return [];
+  }
+};
+
+export const saveAlias = async (sourceId, targetId, targetName) => {
+  try {
+    const db = await initDB();
+    await db.put(ALIASES_STORE, { sourceId, targetId, targetName, updatedAt: Date.now() });
+  } catch (error) {
+    console.error('Error saving alias:', error);
+    throw error;
+  }
+};
+
+export const deleteAlias = async (sourceId) => {
+  try {
+    const db = await initDB();
+    await db.delete(ALIASES_STORE, sourceId);
+  } catch (error) {
+    console.error('Error deleting alias:', error);
+    throw error;
+  }
+};
+
+export const deleteAliasesByTarget = async (targetId) => {
+  try {
+    const db = await initDB();
+    const tx = db.transaction(ALIASES_STORE, 'readwrite');
+    const index = tx.store;
+    let cursor = await index.openCursor();
+    
+    while (cursor) {
+      if (cursor.value.targetId === targetId) {
+        await cursor.delete();
+      }
+      cursor = await cursor.continue();
+    }
+    await tx.done;
+  } catch (error) {
+    console.error('Error deleting aliases by target:', error);
+    throw error;
+  }
 };
 
 export const saveProfile = async (profile) => {

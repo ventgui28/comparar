@@ -18,7 +18,7 @@ describe('groupAndCompareProducts - Hybrid Matching', () => {
 
     const results = groupAndCompareProducts(activeFiles, '');
     expect(results.length).toBe(1);
-    expect(results[0].id).toBe('sameref');
+    expect(results[0].id).toBe('product a');
   });
 
   it('should group products if their name matches, even if references differ', () => {
@@ -37,7 +37,7 @@ describe('groupAndCompareProducts - Hybrid Matching', () => {
 
     const results = groupAndCompareProducts(activeFiles, '');
     expect(results.length).toBe(1);
-    expect(results[0].id).toBe('refa');
+    expect(results[0].id).toBe('same name');
   });
 
   it('should group products and link them via a bridge item', () => {
@@ -61,6 +61,6 @@ describe('groupAndCompareProducts - Hybrid Matching', () => {
 
     const results = groupAndCompareProducts(activeFiles, '');
     expect(results.length).toBe(1);
-    expect(results[0].id).toBe('refx');
+    expect(results[0].id).toBe('product a');
   });
 });

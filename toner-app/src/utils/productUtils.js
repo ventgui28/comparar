@@ -8,9 +8,10 @@ import { getProductKey, normalizeReference, normalizeDescription } from './norma
  * @param {string} searchTerm - Search string to filter products
  * @param {Array} favorites - List of favorite product IDs
  * @param {Object} priceHistory - Map of product IDs to their price history
+ * @param {Array} manualAliases - List of user-defined product merges
  * @returns {Array} Processed and filtered product list
  */
-export const groupAndCompareProducts = (activeFiles, searchTerm, favorites = [], priceHistory = {}) => {
+export const groupAndCompareProducts = (activeFiles, searchTerm, favorites = [], priceHistory = {}, manualAliases = []) => {
   if (!activeFiles || activeFiles.length === 0) return [];
 
   const s = searchTerm ? searchTerm.toLowerCase() : '';
@@ -20,6 +21,8 @@ export const groupAndCompareProducts = (activeFiles, searchTerm, favorites = [],
   // Mapping to track relationships between references and names
   const refToKey = new Map();
   const nameToKey = new Map();
+  
+  const aliasMap = new Map(manualAliases.map(a => [a.sourceId, a]));
 
   activeFiles.forEach(file => {
     file.data.forEach(item => {
@@ -30,26 +33,44 @@ export const groupAndCompareProducts = (activeFiles, searchTerm, favorites = [],
         const normRef = normalizeReference(item.ref);
         const normName = normalizeDescription(item.desc);
         
-        // Find existing key by reference or name
-        let key = (normRef && refToKey.get(normRef)) || (normName && nameToKey.get(normName));
+        // Initial candidate key - check automated matching first
+        let key = (normName && nameToKey.get(normName)) || (normRef && refToKey.get(normRef));
         
         if (!key) {
-          // New product group - prioritize ref as ID if available, otherwise name
-          key = normRef || normName || `unnamed-${Math.random()}`;
-          if (normRef) refToKey.set(normRef, key);
-          if (normName) nameToKey.set(normName, key);
-          
+          // Fallback to natural key (Prioritize Name to match getProductKey)
+          key = normName || normRef || `unnamed-${Math.random()}`;
+        }
+
+        // Apply manual alias redirection
+        const alias = aliasMap.get(key);
+        let currentDesc = item.desc || 'Item sem descrição';
+        
+        if (alias) {
+          key = alias.targetId;
+          currentDesc = alias.targetName;
+        }
+        
+        if (!masterMap.has(key)) {
           masterMap.set(key, { 
             id: key,
-            desc: item.desc || 'Item sem descrição', 
+            desc: currentDesc, 
             prices: {}, 
             refs: {},
             rowNumbers: {}
           });
+          
+          // Set mappings to this new group
+          if (normRef) refToKey.set(normRef, key);
+          if (normName) nameToKey.set(normName, key);
         } else {
           // Update cross-mappings for hybrid matching
           if (normRef && !refToKey.has(normRef)) refToKey.set(normRef, key);
           if (normName && !nameToKey.has(normName)) nameToKey.set(normName, key);
+          
+          // Ensure if it's an alias target, we use the preferred name
+          if (alias) {
+            masterMap.get(key).desc = alias.targetName;
+          }
         }
         
         const entry = masterMap.get(key);

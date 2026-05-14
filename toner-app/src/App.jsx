@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Upload, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Upload, X, ChevronLeft, ChevronRight, Settings } from 'lucide-react';
 import MappingModal from './components/shared/MappingModal';
 import ComparisonTable from './components/Table/ComparisonTable';
 import { CartManager } from './components/shared/CartManager';
@@ -8,6 +8,8 @@ import { useProductComparison } from './hooks/useProductComparison';
 import { useExcelHandler } from './hooks/useExcelHandler';
 import { useAppActions } from './hooks/useAppActions';
 import PriceHistoryModal from './components/shared/PriceHistoryModal';
+import MergeModal from './components/shared/MergeModal';
+import AliasesModal from './components/shared/AliasesModal';
 
 const SEARCH_DEBOUNCE_MS = 300;
 const ROWS_PER_PAGE = 25;
@@ -21,7 +23,11 @@ const App = () => {
     toggleFavorite, 
     addToCart, 
     updateCart, 
-    priceHistory 
+    priceHistory,
+    aliases,
+    addManualAlias,
+    removeManualGroup,
+    removeManualAlias
   } = useToner();
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -29,6 +35,8 @@ const App = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [showHistory, setShowHistory] = useState(null);
+  const [showMerge, setShowMerge] = useState(null);
+  const [showAliases, setShowAliases] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
   const { 
@@ -55,7 +63,7 @@ const App = () => {
     setCurrentPage(1);
   }, [debouncedSearch]);
 
-  const comparisonData = useProductComparison(activeFiles, debouncedSearch, favorites, priceHistory);
+  const comparisonData = useProductComparison(activeFiles, debouncedSearch, favorites, priceHistory, aliases);
   
   // Pagination logic
   const totalPages = Math.ceil(comparisonData.length / ROWS_PER_PAGE);
@@ -120,6 +128,13 @@ const App = () => {
           <div className="header-actions" style={{ marginLeft: 'auto' }}>
             {toast && <div className="toast animate-in">{toast}</div>}
             
+            {aliases.length > 0 && (
+              <button onClick={() => setShowAliases(true)} className="btn-secondary" style={{ padding: '0.4rem 0.8rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Settings size={16} />
+                Gerir Uniões
+              </button>
+            )}
+
             {Object.keys(cart).length > 0 && (
               <button onClick={() => setIsCartOpen(true)} className="btn-cart">
                 <span className="cart-count">{Object.keys(cart).length}</span>
@@ -233,6 +248,9 @@ const App = () => {
                   favorites={favorites}
                   onToggleFavorite={toggleFavorite}
                   onShowHistory={setShowHistory}
+                  onShowMerge={setShowMerge}
+                  onUnmerge={removeManualGroup}
+                  aliases={aliases}
                 />
                 
                 {comparisonData.length > 0 && (
@@ -314,6 +332,26 @@ const App = () => {
           productId={showHistory.id} 
           productName={showHistory.desc} 
           onClose={() => setShowHistory(null)} 
+        />
+      )}
+
+      {showMerge && (
+        <MergeModal
+          sourceProduct={showMerge}
+          allProducts={comparisonData}
+          onConfirm={(targetId, targetName) => {
+            addManualAlias(showMerge.id, targetId, targetName);
+            setShowMerge(null);
+          }}
+          onClose={() => setShowMerge(null)}
+        />
+      )}
+
+      {showAliases && (
+        <AliasesModal
+          aliases={aliases}
+          onRemove={removeManualAlias}
+          onClose={() => setShowAliases(false)}
         />
       )}
     </div>

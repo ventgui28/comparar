@@ -1,4 +1,4 @@
-import { Star, TrendingUp, ShoppingCart } from 'lucide-react';
+import { Star, TrendingUp, ShoppingCart, Link, Link2Off } from 'lucide-react';
 import PriceDisplay from './PriceDisplay';
 
 const TableRow = ({ 
@@ -8,7 +8,10 @@ const TableRow = ({
   isFavorite, 
   onToggleFavorite, 
   onShowHistory, 
-  onToggleRow 
+  onShowMerge,
+  onUnmerge,
+  onToggleRow,
+  aliases = []
 }) => {
   const prices = Object.values(item.prices).filter(p => p > 0);
   const minPrice = Math.min(...prices);
@@ -17,27 +20,51 @@ const TableRow = ({
   const bestFileId = Object.keys(item.prices).find(id => item.prices[id] === minPrice);
   const bestRef = item.refs[bestFileId];
 
+  const isGroup = aliases.some(a => a.targetId === item.id);
+
   return (
     <tr className="table-row">
       <td className="action-cell">
         <button 
           onClick={() => onToggleFavorite(item.id)} 
           className={`btn-icon favorite ${isFavorite ? 'active' : ''}`}
+          title="Adicionar aos Favoritos"
         >
           <Star size={18} fill={isFavorite ? "currentColor" : "none"} />
         </button>
       </td>
       
       <td className="action-cell">
-        {isFavorite && (
-          <button 
-            onClick={() => onShowHistory(item)} 
-            className="btn-icon history"
-            title="Ver Histórico de Preços"
-          >
-            <TrendingUp size={18} />
-          </button>
-        )}
+        <div style={{ display: 'flex', gap: '0.2rem' }}>
+          {isFavorite && (
+            <button 
+              onClick={() => onShowHistory(item)} 
+              className="btn-icon history"
+              title="Ver Histórico de Preços"
+            >
+              <TrendingUp size={18} />
+            </button>
+          )}
+          {isGroup ? (
+            <button 
+              onClick={() => onUnmerge(item.id)} 
+              className="btn-icon history"
+              title="Desunir Produtos (Separar tudo)"
+              style={{ color: '#ef4444' }}
+            >
+              <Link2Off size={18} />
+            </button>
+          ) : (
+            <button 
+              onClick={() => onShowMerge(item)} 
+              className="btn-icon history"
+              title="Unir Manualmente"
+              style={{ color: 'var(--primary)' }}
+            >
+              <Link size={18} />
+            </button>
+          )}
+        </div>
       </td>
       
       <td className="cart-cell">

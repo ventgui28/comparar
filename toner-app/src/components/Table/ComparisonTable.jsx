@@ -9,7 +9,10 @@ const ComparisonTable = ({
   onAddToCart, 
   favorites, 
   onToggleFavorite,
-  onShowHistory
+  onShowHistory,
+  onShowMerge,
+  onUnmerge,
+  aliases
 }) => {
   const [expandedRows, setExpandedRows] = useState(new Set());
 
@@ -39,7 +42,10 @@ const ComparisonTable = ({
                 isFavorite={isFavorite}
                 onToggleFavorite={onToggleFavorite}
                 onShowHistory={onShowHistory}
+                onShowMerge={onShowMerge}
+                onUnmerge={onUnmerge}
                 onToggleRow={toggleRow}
+                aliases={aliases}
               />
               {isExpanded && (
                 <RowDetails 
