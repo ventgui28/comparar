@@ -238,16 +238,6 @@ const App = () => {
       <header className="app-header">
         <div className="header-content">
           <div className="header-actions" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', userSelect: 'none' }} title="Abrir sempre o editor de mapeamento, mesmo para ficheiros conhecidos">
-              <input 
-                type="checkbox" 
-                checked={forceManual} 
-                onChange={(e) => setForceManual(e.target.checked)} 
-                style={{ cursor: 'pointer' }}
-              />
-              <span className="label-tiny" style={{ fontWeight: 600, color: 'var(--primary)' }}>Editar Mapeamento</span>
-            </label>
-
             {aliases.length > 0 && (
               <button onClick={() => setShowAliases(true)} className="btn-secondary" style={{ padding: '0.4rem 0.8rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Settings size={16} />
@@ -293,15 +283,28 @@ const App = () => {
       <main className="container">
         <section className="hero-section">
           <input type="file" id="main-upload" hidden onChange={handleFileDrop} accept=".xlsx, .xls" />
-          <label htmlFor="main-upload" className="hero-card upload-trigger animate-in">
-            <div className="icon-circle">
-              <Upload size={24} />
+          <div className="hero-container animate-in">
+            <label htmlFor="main-upload" className="hero-card upload-trigger">
+              <div className="icon-circle">
+                <Upload size={24} />
+              </div>
+              <div className="upload-text">
+                <h3>Adicionar Ficheiros</h3>
+                <p>Arrasta ou clica em qualquer zona para importar tabelas Excel</p>
+              </div>
+            </label>
+            
+            <div className="hero-options">
+              <label className="force-manual-toggle" title="Abrir sempre o editor de mapeamento, mesmo para ficheiros conhecidos">
+                <input 
+                  type="checkbox" 
+                  checked={forceManual} 
+                  onChange={(e) => setForceManual(e.target.checked)} 
+                />
+                <span className="toggle-label">Forçar Configuração Manual</span>
+              </label>
             </div>
-            <div className="upload-text">
-              <h3>Adicionar Ficheiros</h3>
-              <p>Arrasta ou clica em qualquer zona para importar tabelas Excel</p>
-            </div>
-          </label>
+          </div>
         </section>
 
         {activeFiles && activeFiles.length > 0 && (
