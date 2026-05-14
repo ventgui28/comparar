@@ -250,20 +250,16 @@ const App = () => {
 
       <main className="container">
         <section className="hero-section">
-          <div className="hero-card animate-in">
-            <div className="upload-zone">
-              <input type="file" id="main-upload" hidden onChange={handleFileDrop} accept=".xlsx, .xls" />
-              <label htmlFor="main-upload" className="upload-trigger">
-                <div className="icon-circle">
-                  <Upload size={24} />
-                </div>
-                <div className="upload-text">
-                  <h3>Adicionar Ficheiros</h3>
-                  <p>Arrasta ou clica para importar tabelas Excel</p>
-                </div>
-              </label>
+          <input type="file" id="main-upload" hidden onChange={handleFileDrop} accept=".xlsx, .xls" />
+          <label htmlFor="main-upload" className="hero-card upload-trigger animate-in">
+            <div className="icon-circle">
+              <Upload size={24} />
             </div>
-          </div>
+            <div className="upload-text">
+              <h3>Adicionar Ficheiros</h3>
+              <p>Arrasta ou clica em qualquer zona para importar tabelas Excel</p>
+            </div>
+          </label>
         </section>
 
         {activeFiles && activeFiles.length > 0 && (
