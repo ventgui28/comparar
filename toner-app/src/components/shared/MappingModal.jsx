@@ -26,7 +26,6 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
     setSelections
   } = useMappingState(sheetNames, sheetsData, fileName);
 
-  const [showRaw, setShowRaw] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
   const previewData = useMemo(() => {
@@ -86,8 +85,6 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
           setActiveSlot={setActiveSlot}
           selections={selections}
           onReset={() => setSelections({ ref: { start: null, end: null }, name: { start: null, end: null }, price: { start: null, end: null } })}
-          showRaw={showRaw}
-          setShowRaw={setShowRaw}
           companyName={companyName}
           setCompanyName={setCompanyName}
           onSaveProfile={handleSaveProfile}
@@ -99,7 +96,6 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
         <div className="preview-container">
           <MappingPreviewTable 
             data={previewData}
-            showRaw={showRaw}
             currentData={currentData}
             getCellClass={getCellClass}
             handleCellClick={handleCellClick}
