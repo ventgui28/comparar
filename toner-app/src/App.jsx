@@ -47,8 +47,10 @@ const App = () => {
   const addToast = useCallback((message, type = 'success', options = {}) => {
     const id = Date.now();
     setToasts(prev => {
-      // Keep only last 5 toasts to avoid screen clutter
-      const newList = [...prev, { 
+      // Deduplicate: if same message exists, remove it first to "reset" it
+      const filtered = prev.filter(t => t.message !== message);
+      
+      const newList = [...filtered, { 
         id, 
         message, 
         type, 
@@ -56,7 +58,9 @@ const App = () => {
         action: options.action, 
         onAction: options.onAction 
       }];
-      if (newList.length > 5) return newList.slice(-5);
+      
+      // Limit to 3 toasts max
+      if (newList.length > 3) return newList.slice(-3);
       return newList;
     });
   }, []);
