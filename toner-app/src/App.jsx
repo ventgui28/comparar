@@ -10,6 +10,7 @@ import { useAppActions } from './hooks/useAppActions';
 import MergeModal from './components/shared/MergeModal';
 import AliasesModal from './components/shared/AliasesModal';
 import ConfirmModal from './components/shared/ConfirmModal';
+import Toast from './components/shared/Toast';
 
 const SEARCH_DEBOUNCE_MS = 300;
 const ROWS_PER_PAGE = 25;
@@ -37,6 +38,14 @@ const App = () => {
   const [showAliases, setShowAliases] = useState(false);
   const [confirmUnmerge, setConfirmUnmerge] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [toasts, setToasts] = useState([]);
+
+  const addToast = (message, type = 'success') => {
+    const id = Date.now();
+    setToasts(prev => [...prev, { id, message, type }]);
+  };
+
+  const removeToast = (id) => setToasts(prev => prev.filter(t => t.id !== id));
 
   const { 
     showMapper, 
@@ -47,10 +56,9 @@ const App = () => {
   } = useExcelHandler(setActiveFiles);
 
   const { 
-    toast, 
     handleAddToCart, 
     handleResetTotal 
-  } = useAppActions(addToCart);
+  } = useAppActions(addToCart, addToast);
 
   useEffect(() => {
     const handler = setTimeout(() => setDebouncedSearch(searchTerm), SEARCH_DEBOUNCE_MS);
@@ -110,6 +118,12 @@ const App = () => {
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
+      <div className="toast-container">
+        {toasts.map(t => (
+          <Toast key={t.id} message={t.message} type={t.type} onClose={() => removeToast(t.id)} />
+        ))}
+      </div>
+
       {isDragging && (
         <div className="drag-overlay animate-in">
           <div className="drag-content">
@@ -125,8 +139,6 @@ const App = () => {
       <header className="app-header">
         <div className="header-content">
           <div className="header-actions" style={{ marginLeft: 'auto' }}>
-            {toast && <div className="toast animate-in">{toast}</div>}
-            
             {aliases.length > 0 && (
               <button onClick={() => setShowAliases(true)} className="btn-secondary" style={{ padding: '0.4rem 0.8rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Settings size={16} />

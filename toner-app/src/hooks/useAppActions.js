@@ -1,14 +1,9 @@
-import { useState } from 'react';
-
-const TOAST_DURATION_MS = 2000;
-
-export const useAppActions = (addToCart) => {
-  const [toast, setToast] = useState('');
-
+export const useAppActions = (addToCart, addToast) => {
   const handleAddToCart = (id, qty, shopId) => {
     addToCart(id, qty, shopId);
-    setToast('Adicionado!');
-    setTimeout(() => setToast(''), TOAST_DURATION_MS);
+    if (addToast) {
+      addToast('Adicionado ao carrinho!', 'success');
+    }
   };
 
   const handleResetTotal = () => {
@@ -17,7 +12,6 @@ export const useAppActions = (addToCart) => {
   };
 
   return {
-    toast,
     handleAddToCart,
     handleResetTotal
   };
