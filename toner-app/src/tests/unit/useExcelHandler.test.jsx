@@ -8,7 +8,7 @@ import * as db from '../../utils/db';
 vi.mock('../../utils/excelParser', () => ({
   readRawExcel: vi.fn().mockResolvedValue({ 
     sheetNames: ['Sheet1'], 
-    sheets: { 'Sheet1': [['header'], ['row1']] } 
+    sheetsData: { 'Sheet1': [['header'], ['row1']] } 
   }),
   parseWithMapping: vi.fn().mockReturnValue([{ id: 1, name: 'Product 1' }])
 }));

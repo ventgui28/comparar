@@ -32,7 +32,7 @@ export const useExcelHandler = (setActiveFiles, clearCart, addToast) => {
       );
 
       if (match) {
-        const rows = excelBundle.sheets[excelBundle.sheetNames[0]];
+        const rows = excelBundle.sheetsData[excelBundle.sheetNames[0]];
         const parsed = parseWithMapping(rows, match.mapping, file.name);
         
         setActiveFiles(prev => [
