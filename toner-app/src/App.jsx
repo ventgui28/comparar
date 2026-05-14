@@ -295,13 +295,13 @@ const App = () => {
             </label>
             
             <div className="hero-options">
-              <label className="force-manual-toggle" title="Abrir sempre o editor de mapeamento, mesmo para ficheiros conhecidos">
+              <label className="force-manual-toggle" title="Ignorar perfis guardados e escolher as colunas (Referência, Nome, Preço) manualmente para cada ficheiro importado.">
                 <input 
                   type="checkbox" 
                   checked={forceManual} 
                   onChange={(e) => setForceManual(e.target.checked)} 
                 />
-                <span className="toggle-label">Forçar Configuração Manual</span>
+                <span className="toggle-label">Selecionar Colunas Manualmente</span>
               </label>
             </div>
           </div>
