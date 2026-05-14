@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { readRawExcel, parseWithMapping, finalizeMapping } from '../utils/excelParser';
 import { getProfiles } from '../utils/db';
 
-export const useExcelHandler = (setActiveFiles, clearCart, addToast) => {
+export const useExcelHandler = (setActiveFiles, clearCart, addToast, forceManual = false) => {
   const [showMapper, setShowMapper] = useState(null);
   const [fileQueue, setFileQueue] = useState([]);
 
@@ -31,7 +31,7 @@ export const useExcelHandler = (setActiveFiles, clearCart, addToast) => {
         file.name.toLowerCase().includes(p.name.toLowerCase())
       );
 
-      if (match) {
+      if (match && !forceManual) {
         const rows = excelBundle.sheetsData[excelBundle.sheetNames[0]];
         const mapping = finalizeMapping(match.mapping);
         const parsed = parseWithMapping(rows, mapping, file.name);

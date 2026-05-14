@@ -40,6 +40,7 @@ const App = () => {
   const [confirmUnmerge, setConfirmUnmerge] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [toasts, setToasts] = useState([]);
+  const [forceManual, setForceManual] = useState(false);
 
   const addToast = (message, type = 'success') => {
     const id = Date.now();
@@ -54,7 +55,7 @@ const App = () => {
     handleFiles,
     handleFileDrop, 
     handleMappingConfirm 
-  } = useExcelHandler(setActiveFiles, () => setCart({}), addToast);
+  } = useExcelHandler(setActiveFiles, () => setCart({}), addToast, forceManual);
 
   const { 
     handleAddToCart, 
@@ -139,7 +140,17 @@ const App = () => {
 
       <header className="app-header">
         <div className="header-content">
-          <div className="header-actions" style={{ marginLeft: 'auto' }}>
+          <div className="header-actions" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', userSelect: 'none' }} title="Abrir sempre o editor de mapeamento, mesmo para ficheiros conhecidos">
+              <input 
+                type="checkbox" 
+                checked={forceManual} 
+                onChange={(e) => setForceManual(e.target.checked)} 
+                style={{ cursor: 'pointer' }}
+              />
+              <span className="label-tiny" style={{ fontWeight: 600, color: 'var(--primary)' }}>Editar Mapeamento</span>
+            </label>
+
             {aliases.length > 0 && (
               <button onClick={() => setShowAliases(true)} className="btn-secondary" style={{ padding: '0.4rem 0.8rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Settings size={16} />
