@@ -53,6 +53,23 @@ export const TonerProvider = ({ children }) => {
     await saveAlias(sourceId, targetId, targetName);
     const updated = await getAliases();
     setAliases(updated);
+    
+    // Migrate cart if source item is present
+    setCart(prev => {
+      if (prev[sourceId]) {
+        const next = { ...prev };
+        const sourceQty = next[sourceId].qty;
+        const sourceShopId = next[sourceId].shopId;
+        delete next[sourceId];
+        
+        next[targetId] = {
+          qty: (next[targetId]?.qty || 0) + sourceQty,
+          shopId: next[targetId]?.shopId || sourceShopId
+        };
+        return next;
+      }
+      return prev;
+    });
   };
 
   const removeManualAlias = async (sourceId) => {

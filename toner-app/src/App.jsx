@@ -140,6 +140,7 @@ const App = () => {
   }, [debouncedSearch]);
 
   const comparisonData = useProductComparison(activeFiles, debouncedSearch, favorites, aliases);
+  const unfilteredData = useProductComparison(activeFiles, '', favorites, aliases);
   
   // Pagination logic
   const totalPages = Math.ceil(comparisonData.length / ROWS_PER_PAGE);
@@ -375,12 +376,13 @@ const App = () => {
         </section>
 
         {isCartOpen && (
-          <CartManager 
-            cart={cart} 
-            products={comparisonData} 
-            activeFiles={activeFiles} 
-            isOpen={isCartOpen} 
-            onClose={() => setIsCartOpen(false)} 
+          <CartManager
+            cart={cart}
+            products={unfilteredData}
+            activeFiles={activeFiles}
+            aliases={aliases}
+            isOpen={isCartOpen}
+            onClose={() => setIsCartOpen(false)}
             onUpdateCart={handleUpdateCart}
           />
         )}
@@ -399,7 +401,7 @@ const App = () => {
       {showMerge && (
         <MergeModal
           sourceProduct={showMerge}
-          allProducts={comparisonData}
+          allProducts={unfilteredData}
           onConfirm={(targetId, targetName) => {
             addManualAlias(showMerge.id, targetId, targetName);
             setShowMerge(null);

@@ -35,13 +35,18 @@ export const groupAndCompareProducts = (activeFiles, searchTerm, favorites = [],
       let currentDesc = item.desc || 'Item sem descrição';
       
       if (alias) {
+        // console.log(`[DEBUG] Redirecting ${key} to ${alias.targetId} (${alias.targetName})`);
         key = alias.targetId;
         currentDesc = alias.targetName;
       }
       
       // SAFETY: If the key already has data from THIS file, AND it's not a manual alias redirection,
       // it's an accidental duplicate in the same file. We must treat it as separate.
-      if (masterMap.has(key) && masterMap.get(key).prices[file.id] !== undefined && !alias) {
+      // NOTE: We also check if this specific product row (id) is part of ANY alias targetId, 
+      // if so, we allow the merge because it's an explicit group.
+      const isExplicitTarget = manualAliases.some(a => a.targetId === key);
+
+      if (masterMap.has(key) && masterMap.get(key).prices[file.id] !== undefined && !alias && !isExplicitTarget) {
         key = `${key}-row-${file.id}-${itemIdx}`;
       }
       
@@ -59,7 +64,15 @@ export const groupAndCompareProducts = (activeFiles, searchTerm, favorites = [],
       } else {
         if (normRef && !refToKey.has(normRef)) refToKey.set(normRef, key);
         if (normName && !nameToKey.has(normName)) nameToKey.set(normName, key);
-        if (alias) masterMap.get(key).desc = alias.targetName;
+        
+        // If it's a manual alias, ensure we use the user's preferred name
+        if (alias) {
+          masterMap.get(key).desc = alias.targetName;
+        } else if (isExplicitTarget) {
+           // If this is the target of an alias, find the alias and use its name
+           const targetAlias = manualAliases.find(a => a.targetId === key);
+           if (targetAlias) masterMap.get(key).desc = targetAlias.targetName;
+        }
       }
       
       const entry = masterMap.get(key);

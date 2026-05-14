@@ -1,21 +1,47 @@
 import * as XLSX from 'xlsx';
 import { X, FileDown, Plus, Minus, Trash2 } from 'lucide-react';
 
-export const CartManager = ({ cart, products, activeFiles, isOpen, onClose, onUpdateCart }) => {
+export const CartManager = ({ cart, products, activeFiles, aliases = [], isOpen, onClose, onUpdateCart }) => {
   if (!isOpen) return null;
 
+  const getProduct = (id) => {
+    let prod = products.find(p => p.id === id);
+    if (!prod && aliases) {
+      const alias = aliases.find(a => a.sourceId === id);
+      if (alias) {
+        // Try to find the target product
+        prod = products.find(p => p.id === alias.targetId);
+        
+        // If still not found (e.g. target product itself was also a source for ANOTHER alias), 
+        // we use the alias's own targetName as a fallback for the description.
+        if (!prod) {
+          return {
+            id: alias.targetId,
+            desc: alias.targetName || 'Produto unido',
+            prices: {},
+            refs: {}
+          };
+        }
+      }
+    }
+    return prod;
+  };
+
   const totalSavings = Object.entries(cart).reduce((acc, [prodId, { qty, shopId }]) => {
-    const prod = products.find(p => p.id === prodId);
-    if (!prod) return acc;
+    const prod = getProduct(prodId);
+    if (!prod || !prod.prices) return acc;
     const prices = Object.values(prod.prices).filter(p => p > 0);
+    if (prices.length === 0) return acc;
     const maxPrice = Math.max(...prices);
-    return acc + (maxPrice - prod.prices[shopId]) * qty;
+    const itemPrice = prod.prices[shopId] || 0;
+    if (itemPrice === 0) return acc;
+    return acc + (maxPrice - itemPrice) * qty;
   }, 0);
 
   const totalAmount = Object.entries(cart).reduce((acc, [prodId, { qty, shopId }]) => {
-    const prod = products.find(p => p.id === prodId);
-    if (!prod) return acc;
-    return acc + (prod.prices[shopId] * qty);
+    const prod = getProduct(prodId);
+    if (!prod || !prod.prices) return acc;
+    return acc + ((prod.prices[shopId] || 0) * qty);
   }, 0);
 
   const exportCart = () => {
@@ -24,14 +50,14 @@ export const CartManager = ({ cart, products, activeFiles, isOpen, onClose, onUp
 
     Object.entries(cart).forEach(([prodId, { qty, shopId }]) => {
       if (!grouped[shopId]) grouped[shopId] = [];
-      const prod = products.find(p => p.id === prodId);
+      const prod = getProduct(prodId);
       if (prod) {
         grouped[shopId].push({
-          'Referência': prod.refs[shopId],
+          'Referência': prod.refs[shopId] || 'N/A',
           'Descrição': prod.desc,
           'Quantidade': qty,
-          'Preço Un.': Number(prod.prices[shopId].toFixed(2)),
-          'Total': Number((qty * prod.prices[shopId]).toFixed(2))
+          'Preço Un.': Number((prod.prices[shopId] || 0).toFixed(2)),
+          'Total': Number((qty * (prod.prices[shopId] || 0)).toFixed(2))
         });
       }
     });
@@ -65,12 +91,12 @@ export const CartManager = ({ cart, products, activeFiles, isOpen, onClose, onUp
           ) : (
             <ul className="cart-list">
               {Object.entries(cart).map(([prodId, { qty, shopId }]) => {
-                const prod = products.find(p => p.id === prodId);
+                const prod = getProduct(prodId);
                 const price = prod?.prices[shopId] || 0;
                 return (
                   <li key={prodId} className="cart-item">
                     <div className="item-info">
-                      <div className="item-name">{prod?.desc}</div>
+                      <div className="item-name">{prod?.desc || 'Produto não encontrado'}</div>
                       <div className="item-meta">
                         <span className="item-price">{price.toFixed(2)}€</span>
                         <span className="item-multiply">×</span>
