@@ -12,8 +12,6 @@ describe('useAppActions', () => {
     // Mock window.location.reload
     delete window.location;
     window.location = { reload: vi.fn() };
-    // Mock window.confirm
-    window.confirm = vi.fn(() => true);
     // Mock localStorage
     Object.defineProperty(window, 'localStorage', {
       value: {
@@ -48,26 +46,13 @@ describe('useAppActions', () => {
     expect(onCartOpen).toHaveBeenCalledWith(true);
   });
 
-  it('should clear data and reload when handleResetTotal is confirmed', async () => {
+  it('should clear data and reload when handleResetTotal is called', async () => {
     const { handleResetTotal } = useAppActions();
     
     await handleResetTotal();
     
-    expect(window.confirm).toHaveBeenCalled();
     expect(window.localStorage.clear).toHaveBeenCalled();
     expect(saveFiles).toHaveBeenCalledWith([]);
     expect(window.location.reload).toHaveBeenCalled();
-  });
-
-  it('should not clear data if handleResetTotal is cancelled', async () => {
-    window.confirm = vi.fn(() => false);
-    const { handleResetTotal } = useAppActions();
-    
-    await handleResetTotal();
-    
-    expect(window.confirm).toHaveBeenCalled();
-    expect(window.localStorage.clear).not.toHaveBeenCalled();
-    expect(saveFiles).not.toHaveBeenCalled();
-    expect(window.location.reload).not.toHaveBeenCalled();
   });
 });

@@ -39,6 +39,7 @@ const App = () => {
   const [showMerge, setShowMerge] = useState(null);
   const [showAliases, setShowAliases] = useState(false);
   const [confirmUnmerge, setConfirmUnmerge] = useState(null);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [toasts, setToasts] = useState([]);
   const [forceManual, setForceManual] = useState(false);
@@ -208,7 +209,7 @@ const App = () => {
               </button>
             )}
             
-            <button onClick={handleResetTotal} className="btn-reset">
+            <button onClick={() => setShowResetConfirm(true)} className="btn-reset">
               Reset Total
             </button>
           </div>
@@ -423,6 +424,17 @@ const App = () => {
             setConfirmUnmerge(null);
           }}
           onCancel={() => setConfirmUnmerge(null)}
+        />
+      )}
+
+      {showResetConfirm && (
+        <ConfirmModal
+          title="Limpar todos os dados?"
+          message="Tens a certeza que desejas limpar todos os dados? Isto irá remover todos os ficheiros carregados e o teu carrinho atual."
+          confirmText="Sim, Limpar Tudo"
+          cancelText="Manter Dados"
+          onConfirm={handleResetTotal}
+          onCancel={() => setShowResetConfirm(false)}
         />
       )}
     </div>

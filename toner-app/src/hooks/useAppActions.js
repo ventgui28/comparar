@@ -12,11 +12,9 @@ export const useAppActions = (addToCart, addToast, onCartOpen) => {
   };
 
   const handleResetTotal = async () => {
-    if (confirm('Tem a certeza que deseja limpar todos os dados (carrinho e ficheiros)?')) {
-      localStorage.clear();
-      await saveFiles([]);
-      window.location.reload();
-    }
+    localStorage.clear();
+    await saveFiles([]);
+    window.location.reload();
   };
 
   return {
