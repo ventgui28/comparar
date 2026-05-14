@@ -50,38 +50,45 @@ const MappingWizardHeader = ({
       </div>
 
       {/* 2. Perfis */}
-      <div className="profile-controls" style={{ marginBottom: '1.5rem' }}>
-        <div className="profile-input-group">
-          <input 
-            type="text" 
-            placeholder="Nome da Empresa..." 
-            value={companyName} 
-            onChange={(e) => setCompanyName(e.target.value)}
-            className="pill company-input"
-          />
-        </div>
-
-        {profiles.length > 0 && (
-          <div className="profile-select-group">
-            <select 
-              className="pill" 
-              onChange={handleProfileSelect}
-              value={selectValue}
-            >
-              <option value="">Selecionar Perfil...</option>
-              {profiles.map(p => <option key={p.name} value={p.name}>{p.name}</option>)}
-            </select>
-            {companyName && profiles.some(p => p.name === companyName) && (
-              <button 
-                onClick={() => onDeleteProfile(companyName)} 
-                className="pill danger" 
-                title="Apagar Perfil"
-              >
-                <Trash2 size={16} />
-              </button>
-            )}
+      <div className="profile-controls" style={{ marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', gap: '0.8rem', width: '100%' }}>
+          <div className="profile-input-group" style={{ flex: 1 }}>
+            <input 
+              type="text" 
+              placeholder="Nome da Empresa..." 
+              value={companyName} 
+              onChange={(e) => setCompanyName(e.target.value)}
+              className="pill company-input"
+              style={{ width: '100%' }}
+            />
           </div>
-        )}
+
+          {profiles.length > 0 && (
+            <div className="profile-select-group">
+              <select 
+                className="pill" 
+                onChange={handleProfileSelect}
+                value={selectValue}
+              >
+                <option value="">Selecionar Perfil...</option>
+                {profiles.map(p => <option key={p.name} value={p.name}>{p.name}</option>)}
+              </select>
+              {companyName && profiles.some(p => p.name === companyName) && (
+                <button 
+                  onClick={() => onDeleteProfile(companyName)} 
+                  className="pill danger" 
+                  title="Apagar Perfil"
+                >
+                  <Trash2 size={16} />
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+        
+        <p style={{ fontSize: '0.75rem', color: '#64748b', margin: '0 0.5rem' }}>
+          💡 <strong>Dica:</strong> Use um nome que apareça no ficheiro (ex: nome da folha ou cabeçalho) para que o perfil seja detetado automaticamente no futuro.
+        </p>
       </div>
 
       {/* 3. Caixa de Instruções (Novo Layout) */}
