@@ -1,8 +1,11 @@
-export const useAppActions = (addToCart, addToast) => {
+export const useAppActions = (addToCart, addToast, onCartOpen) => {
   const handleAddToCart = (id, qty, shopId) => {
     addToCart(id, qty, shopId);
     if (addToast) {
-      addToast('Adicionado ao carrinho!', 'success');
+      addToast('Adicionado ao carrinho!', 'success', {
+        action: { label: 'Ver Carrinho', icon: 'cart' },
+        onAction: () => onCartOpen && onCartOpen(true)
+      });
     }
   };
 

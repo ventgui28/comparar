@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { readRawExcel, parseWithMapping, finalizeMapping } from '../utils/excelParser';
 import { getProfiles } from '../utils/db';
 
-export const useExcelHandler = (setActiveFiles, clearCart, addToast, forceManual = false) => {
+export const useExcelHandler = (setActiveFiles, clearCart, addToast, forceManual = false, removeFile) => {
   const [showMapper, setShowMapper] = useState(null);
   const [fileQueue, setFileQueue] = useState([]);
 
@@ -111,6 +111,7 @@ export const useExcelHandler = (setActiveFiles, clearCart, addToast, forceManual
     setShowMapper,
     handleFiles,
     handleFileDrop,
-    handleMappingConfirm
+    handleMappingConfirm,
+    removeFile
   };
 };

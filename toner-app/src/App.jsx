@@ -11,6 +11,7 @@ import MergeModal from './components/shared/MergeModal';
 import AliasesModal from './components/shared/AliasesModal';
 import ConfirmModal from './components/shared/ConfirmModal';
 import Toast from './components/shared/Toast';
+import './App.css';
 
 const SEARCH_DEBOUNCE_MS = 300;
 const ROWS_PER_PAGE = 25;
@@ -42,25 +43,60 @@ const App = () => {
   const [toasts, setToasts] = useState([]);
   const [forceManual, setForceManual] = useState(false);
 
-  const addToast = (message, type = 'success') => {
+  const addToast = (message, type = 'success', options = {}) => {
     const id = Date.now();
-    setToasts(prev => [...prev, { id, message, type }]);
+    setToasts(prev => [...prev, { 
+      id, 
+      message, 
+      type, 
+      action: options.action, 
+      onAction: options.onAction 
+    }]);
   };
 
   const removeToast = (id) => setToasts(prev => prev.filter(t => t.id !== id));
+
+  const removeFileWithUndo = (fileId) => {
+    const fileToRemove = activeFiles.find(f => f.id === fileId);
+    if (!fileToRemove) return;
+    
+    setActiveFiles(prev => prev.filter(f => f.id !== fileId));
+    
+    addToast(`Ficheiro removido: ${fileToRemove.name}`, 'info', {
+      action: { label: 'Desfazer', icon: 'undo' },
+      onAction: () => {
+        setActiveFiles(prev => [...prev, fileToRemove]);
+      }
+    });
+  };
+
+  const removeAllFilesWithUndo = () => {
+    const filesToRemove = [...activeFiles];
+    if (filesToRemove.length === 0) return;
+    
+    setActiveFiles([]);
+    
+    addToast(`${filesToRemove.length} ficheiros removidos`, 'info', {
+      action: { label: 'Desfazer', icon: 'undo' },
+      onAction: () => {
+        setActiveFiles(prev => [...prev, ...filesToRemove]);
+      }
+    });
+  };
 
   const { 
     showMapper, 
     setShowMapper, 
     handleFiles,
     handleFileDrop, 
-    handleMappingConfirm 
-  } = useExcelHandler(setActiveFiles, () => setCart({}), addToast, forceManual);
+    handleMappingConfirm,
+    removeFile
+  } = useExcelHandler(setActiveFiles, () => setCart({}), addToast, forceManual, removeFileWithUndo);
 
   const { 
     handleAddToCart, 
     handleResetTotal 
-  } = useAppActions(addToCart, addToast);
+  } = useAppActions(addToCart, addToast, setIsCartOpen);
 
   useEffect(() => {
     const handler = setTimeout(() => setDebouncedSearch(searchTerm), SEARCH_DEBOUNCE_MS);
@@ -122,7 +158,14 @@ const App = () => {
     >
       <div className="toast-container">
         {toasts.map(t => (
-          <Toast key={t.id} message={t.message} type={t.type} onClose={() => removeToast(t.id)} />
+          <Toast 
+            key={t.id} 
+            message={t.message} 
+            type={t.type} 
+            action={t.action}
+            onAction={t.onAction}
+            onClose={() => removeToast(t.id)} 
+          />
         ))}
       </div>
 
@@ -209,13 +252,13 @@ const App = () => {
                   </span>
                   <button 
                     className="file-remove"
-                    onClick={() => setActiveFiles(prev => prev.filter(file => file.id !== f.id))}
+                    onClick={() => removeFile(f.id)}
                   >
                     <X size={14} />
                   </button>
                 </div>
               ))}
-              <button onClick={() => setActiveFiles([])} className="btn-clear-all">
+              <button onClick={removeAllFilesWithUndo} className="btn-clear-all">
                 Limpar Tudo
               </button>
             </div>
