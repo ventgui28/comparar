@@ -1,10 +1,24 @@
 import { useState } from 'react';
 import { readRawExcel, parseWithMapping } from '../utils/excelParser';
-import { getProductKey } from '../utils/normalization';
 
-export const useExcelHandler = (setActiveFiles) => {
+export const useExcelHandler = (setActiveFiles, clearCart, addToast) => {
   const [showMapper, setShowMapper] = useState(null);
   const [fileQueue, setFileQueue] = useState([]);
+
+  const checkNewDay = () => {
+    const today = new Date().toDateString();
+    const lastDate = localStorage.getItem('toner-last-upload-date');
+    
+    if (lastDate && lastDate !== today) {
+      setActiveFiles([]);
+      if (typeof clearCart === 'function') clearCart();
+      if (typeof addToast === 'function') {
+        addToast("Novo dia detectado. Dados limpos automaticamente.", "info");
+      }
+    }
+    
+    localStorage.setItem('toner-last-upload-date', today);
+  };
 
   const processFile = async (file) => {
     if (!file) return;
@@ -30,6 +44,7 @@ export const useExcelHandler = (setActiveFiles) => {
   };
 
   const handleFiles = async (files) => {
+    checkNewDay();
     const fileList = Array.from(files);
     if (fileList.length === 0) return;
 

@@ -19,6 +19,7 @@ const App = () => {
   const { 
     activeFiles, 
     setActiveFiles, 
+    setCart,
     cart, 
     favorites, 
     toggleFavorite, 
@@ -53,7 +54,7 @@ const App = () => {
     handleFiles,
     handleFileDrop, 
     handleMappingConfirm 
-  } = useExcelHandler(setActiveFiles);
+  } = useExcelHandler(setActiveFiles, () => setCart({}), addToast);
 
   const { 
     handleAddToCart, 
