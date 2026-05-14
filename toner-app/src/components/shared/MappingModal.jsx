@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import useMappingState from '../../hooks/useMappingState';
 import MappingWizardHeader from './MappingModal/MappingWizardHeader';
 import MappingPreviewTable from './MappingModal/MappingPreviewTable';
+import ConfirmModal from './ConfirmModal';
 import { finalizeMapping } from '../../utils/excelParser';
 
 const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
@@ -26,6 +27,7 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
   } = useMappingState(sheetNames, sheetsData, fileName);
 
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showWarning, setShowWarning] = useState(false);
 
   const previewData = useMemo(() => {
     return isExpanded ? currentData : currentData.slice(0, 200);
@@ -60,6 +62,18 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
   };
 
   const handleFinalize = async () => {
+    const hasCompanyName = companyName && companyName.trim();
+    const matchesFileName = hasCompanyName && fileName.toLowerCase().includes(companyName.toLowerCase());
+
+    if (!hasCompanyName || !matchesFileName) {
+      setShowWarning(true);
+      return;
+    }
+
+    await proceedWithFinalize();
+  };
+
+  const proceedWithFinalize = async () => {
     const mapping = finalizeMapping(selections);
 
     // Auto-save profile if company name is set
@@ -69,6 +83,23 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
 
     onConfirm(mapping, currentData);
   };
+
+  const warningContent = useMemo(() => {
+    if (!companyName || !companyName.trim()) {
+      return {
+        title: "Atenção ao Nome da Empresa",
+        message: "Não definiu um nome para esta empresa/fornecedor. Sem o nome, o sistema não conseguirá guardar este mapeamento para utilização futura e será mais difícil identificar a origem destes preços na tabela de comparação.",
+        confirmText: "Continuar sem nome",
+        cancelText: "Voltar e definir"
+      };
+    }
+    return {
+      title: "Atenção ao Nome da Empresa",
+      message: `O nome da empresa definido ('${companyName}') não parece coincidir com o nome do ficheiro. Isto pode dificultar a identificação automática do perfil no futuro.`,
+      confirmText: "Continuar assim",
+      cancelText: "Corrigir nome"
+    };
+  }, [companyName]);
 
   return (
     <div className="modal-overlay">
@@ -128,6 +159,18 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
           </button>
         </div>
       </div>
+
+      {showWarning && (
+        <ConfirmModal 
+          title={warningContent.title}
+          message={warningContent.message}
+          confirmText={warningContent.confirmText}
+          cancelText={warningContent.cancelText}
+          onConfirm={proceedWithFinalize}
+          onCancel={() => setShowWarning(false)}
+          variant="warning"
+        />
+      )}
     </div>
   );
 };
