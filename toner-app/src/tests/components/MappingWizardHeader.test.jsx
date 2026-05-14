@@ -21,7 +21,7 @@ describe('MappingWizardHeader', () => {
 
   it('deve renderizar as instruções iniciais', () => {
     render(<MappingWizardHeader {...defaultProps} />);
-    expect(screen.getByText(/Para importar os produtos, precisamos de saber onde estão os dados no Excel/)).toBeDefined();
+    expect(screen.getByText(/Para importar os produtos, selecione cada opção/)).toBeDefined();
   });
 
   it('deve mostrar a dica correta para o slot ativo', () => {
