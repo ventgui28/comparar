@@ -292,18 +292,18 @@ const App = () => {
                 <h3>Adicionar Ficheiros</h3>
                 <p>Arrasta ou clica em qualquer zona para importar tabelas Excel</p>
               </div>
+              
+              <div className="hero-options" onClick={(e) => e.stopPropagation()}>
+                <label className="force-manual-toggle" title="Ignorar perfis guardados e escolher as colunas (Referência, Nome, Preço) manualmente para cada ficheiro importado.">
+                  <input 
+                    type="checkbox" 
+                    checked={forceManual} 
+                    onChange={(e) => setForceManual(e.target.checked)} 
+                  />
+                  <span className="toggle-label">Selecionar Colunas Manualmente</span>
+                </label>
+              </div>
             </label>
-            
-            <div className="hero-options">
-              <label className="force-manual-toggle" title="Ignorar perfis guardados e escolher as colunas (Referência, Nome, Preço) manualmente para cada ficheiro importado.">
-                <input 
-                  type="checkbox" 
-                  checked={forceManual} 
-                  onChange={(e) => setForceManual(e.target.checked)} 
-                />
-                <span className="toggle-label">Selecionar Colunas Manualmente</span>
-              </label>
-            </div>
           </div>
         </section>
 
