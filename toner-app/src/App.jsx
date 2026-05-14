@@ -10,6 +10,7 @@ import { useAppActions } from './hooks/useAppActions';
 import PriceHistoryModal from './components/shared/PriceHistoryModal';
 import MergeModal from './components/shared/MergeModal';
 import AliasesModal from './components/shared/AliasesModal';
+import ConfirmModal from './components/shared/ConfirmModal';
 
 const SEARCH_DEBOUNCE_MS = 300;
 const ROWS_PER_PAGE = 25;
@@ -37,6 +38,7 @@ const App = () => {
   const [showHistory, setShowHistory] = useState(null);
   const [showMerge, setShowMerge] = useState(null);
   const [showAliases, setShowAliases] = useState(false);
+  const [confirmUnmerge, setConfirmUnmerge] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
 
   const { 
@@ -249,7 +251,7 @@ const App = () => {
                   onToggleFavorite={toggleFavorite}
                   onShowHistory={setShowHistory}
                   onShowMerge={setShowMerge}
-                  onUnmerge={removeManualGroup}
+                  onUnmerge={setConfirmUnmerge}
                   aliases={aliases}
                 />
                 
@@ -352,6 +354,20 @@ const App = () => {
           aliases={aliases}
           onRemove={removeManualAlias}
           onClose={() => setShowAliases(false)}
+        />
+      )}
+
+      {confirmUnmerge && (
+        <ConfirmModal
+          title="Desunir Grupo"
+          message="Tens a certeza que desejas desunir este grupo? Todos os produtos voltarão a ser linhas separadas."
+          confirmText="Sim, Desunir"
+          cancelText="Cancelar"
+          onConfirm={() => {
+            removeManualGroup(confirmUnmerge);
+            setConfirmUnmerge(null);
+          }}
+          onCancel={() => setConfirmUnmerge(null)}
         />
       )}
     </div>
