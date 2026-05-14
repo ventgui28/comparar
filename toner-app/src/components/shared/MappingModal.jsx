@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import useMappingState from '../../hooks/useMappingState';
 import MappingWizardHeader from './MappingModal/MappingWizardHeader';
 import MappingPreviewTable from './MappingModal/MappingPreviewTable';
+import { finalizeMapping } from '../../utils/excelParser';
 
 const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
   const { sheetNames, sheetsData } = excelBundle;
@@ -60,16 +61,7 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
   };
 
   const handleFinalize = async () => {
-    const allStarts = [selections.ref.start?.r, selections.name.start?.r, selections.price.start?.r];
-    const allEnds = [selections.ref.end?.r, selections.name.end?.r, selections.price.end?.r];
-
-    const mapping = {
-      ref: selections.ref.start.c,
-      desc: selections.name.start.c,
-      price: selections.price.start.c,
-      startRow: Math.min(...allStarts.filter(r => r != null)),
-      endRow: allEnds.some(e => e != null) ? Math.max(...allEnds.filter(e => e != null)) : null
-    };
+    const mapping = finalizeMapping(selections);
 
     // Auto-save profile if company name is set
     if (companyName && companyName.trim()) {

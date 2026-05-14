@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { readRawExcel, parseWithMapping } from '../utils/excelParser';
+import { readRawExcel, parseWithMapping, finalizeMapping } from '../utils/excelParser';
 import { getProfiles } from '../utils/db';
 
 export const useExcelHandler = (setActiveFiles, clearCart, addToast) => {
@@ -33,11 +33,12 @@ export const useExcelHandler = (setActiveFiles, clearCart, addToast) => {
 
       if (match) {
         const rows = excelBundle.sheetsData[excelBundle.sheetNames[0]];
-        const parsed = parseWithMapping(rows, match.mapping, file.name);
+        const mapping = finalizeMapping(match.mapping);
+        const parsed = parseWithMapping(rows, mapping, file.name);
         
         setActiveFiles(prev => [
           ...(prev || []).filter(f => f.name !== file.name), 
-          { id: Date.now(), name: file.name, data: parsed, mapping: match.mapping }
+          { id: Date.now(), name: file.name, data: parsed, mapping }
         ]);
 
         if (typeof addToast === 'function') {

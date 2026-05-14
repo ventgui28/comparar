@@ -122,3 +122,19 @@ export const parsePrice = (val) => {
   const result = parseFloat(normalized);
   return isNaN(result) ? 0 : result;
 };
+
+/**
+ * Converte as seleções brutas (coordenadas start/end) num objeto de mapeamento finalizado.
+ */
+export const finalizeMapping = (selections) => {
+  const allStarts = [selections.ref.start?.r, selections.name.start?.r, selections.price.start?.r];
+  const allEnds = [selections.ref.end?.r, selections.name.end?.r, selections.price.end?.r];
+
+  return {
+    ref: selections.ref.start?.c,
+    desc: selections.name.start?.c,
+    price: selections.price.start?.c,
+    startRow: Math.min(...allStarts.filter(r => r != null)),
+    endRow: allEnds.some(e => e != null) ? Math.max(...allEnds.filter(e => e != null)) : null
+  };
+};

@@ -10,7 +10,8 @@ vi.mock('../../utils/excelParser', () => ({
     sheetNames: ['Sheet1'], 
     sheetsData: { 'Sheet1': [['header'], ['row1']] } 
   }),
-  parseWithMapping: vi.fn().mockReturnValue([{ id: 1, name: 'Product 1' }])
+  parseWithMapping: vi.fn().mockReturnValue([{ id: 1, name: 'Product 1' }]),
+  finalizeMapping: vi.fn().mockReturnValue({ ref: 0, desc: 1, price: 2, startRow: 1, endRow: null })
 }));
 
 // Mock the db
@@ -82,7 +83,7 @@ describe('useExcelHandler - Silent Auto-Mapping', () => {
   it('should auto-map if filename matches a profile name', async () => {
     const mockProfile = {
       name: 'Fornecedor A',
-      mapping: { sku: 0, price: 1 }
+      mapping: { ref: { start: { r: 1, c: 0 } }, name: { start: { r: 1, c: 1 } }, price: { start: { r: 1, c: 2 } } }
     };
     vi.mocked(db.getProfiles).mockResolvedValue([mockProfile]);
 
@@ -102,7 +103,7 @@ describe('useExcelHandler - Silent Auto-Mapping', () => {
     const callArgs = setActiveFiles.mock.calls[0][0]([]);
     expect(callArgs[0]).toMatchObject({
       name: 'Fornecedor A - Abril.xlsx',
-      mapping: mockProfile.mapping
+      mapping: { ref: 0, desc: 1, price: 2, startRow: 1, endRow: null }
     });
 
     // Should show success toast
