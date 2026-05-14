@@ -35,24 +35,26 @@ const TableRow = ({
       
       <td className="action-cell">
         <div style={{ display: 'flex', gap: '0.2rem' }}>
-          {isGroup ? (
-            <button 
-              onClick={() => onUnmerge(item.id)} 
-              className="btn-icon history"
-              title="Desunir Produtos (Separar tudo)"
-              style={{ color: '#ef4444' }}
-            >
-              <Link2Off size={18} />
-            </button>
-          ) : (
-            <button 
-              onClick={() => onShowMerge(item)} 
-              className="btn-icon history"
-              title="Unir Manualmente"
-              style={{ color: 'var(--primary)' }}
-            >
-              <Link size={18} />
-            </button>
+          {activeFiles.length > 1 && (isGroup || prices.length < activeFiles.length) && (
+            isGroup ? (
+              <button 
+                onClick={() => onUnmerge(item.id)} 
+                className="btn-icon history"
+                title="Desunir Produtos (Separar tudo)"
+                style={{ color: '#ef4444' }}
+              >
+                <Link2Off size={18} />
+              </button>
+            ) : (
+              <button 
+                onClick={() => onShowMerge(item)} 
+                className="btn-icon history"
+                title="Unir Manualmente"
+                style={{ color: 'var(--primary)' }}
+              >
+                <Link size={18} />
+              </button>
+            )
           )}
         </div>
       </td>
