@@ -113,6 +113,14 @@ const App = () => {
     handleResetTotal 
   } = useAppActions(addToCart, addToast, setIsCartOpen);
 
+  const handleUpdateCart = (productId, qty) => {
+    if (qty === 0) {
+      const product = comparisonData.find(p => p.id === productId);
+      addToast(`Removido: ${product?.desc || productId}`, 'info', { duration: 2000 });
+    }
+    updateCart(productId, qty);
+  };
+
   // Clear cart whenever active files change to ensure price integrity
   useEffect(() => {
     if (activeFiles && Object.keys(cart).length > 0) {
@@ -402,7 +410,7 @@ const App = () => {
             activeFiles={activeFiles} 
             isOpen={isCartOpen} 
             onClose={() => setIsCartOpen(false)} 
-            onUpdateCart={updateCart}
+            onUpdateCart={handleUpdateCart}
           />
         )}
       </main>
