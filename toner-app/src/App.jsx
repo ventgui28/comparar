@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Search, Upload, X, ChevronLeft, ChevronRight, Settings } from 'lucide-react';
 import MappingModal from './components/shared/MappingModal';
 import ComparisonTable from './components/Table/ComparisonTable';
@@ -44,18 +44,26 @@ const App = () => {
   const [toasts, setToasts] = useState([]);
   const [forceManual, setForceManual] = useState(false);
 
-  const addToast = (message, type = 'success', options = {}) => {
+  const addToast = useCallback((message, type = 'success', options = {}) => {
     const id = Date.now();
-    setToasts(prev => [...prev, { 
-      id, 
-      message, 
-      type, 
-      action: options.action, 
-      onAction: options.onAction 
-    }]);
-  };
+    setToasts(prev => {
+      // Keep only last 5 toasts to avoid screen clutter
+      const newList = [...prev, { 
+        id, 
+        message, 
+        type, 
+        duration: options.duration || (options.action ? 5000 : (type === 'success' ? 3000 : 5000)),
+        action: options.action, 
+        onAction: options.onAction 
+      }];
+      if (newList.length > 5) return newList.slice(-5);
+      return newList;
+    });
+  }, []);
 
-  const removeToast = (id) => setToasts(prev => prev.filter(t => t.id !== id));
+  const removeToast = useCallback((id) => {
+    setToasts(prev => prev.filter(t => t.id !== id));
+  }, []);
 
   const removeFileWithUndo = (fileId) => {
     const fileToRemove = activeFiles.find(f => f.id === fileId);
@@ -64,6 +72,7 @@ const App = () => {
     setActiveFiles(prev => prev.filter(f => f.id !== fileId));
     
     addToast(`Ficheiro removido: ${fileToRemove.name}`, 'info', {
+      duration: 6000,
       action: { label: 'Desfazer', icon: 'undo' },
       onAction: () => {
         setActiveFiles(prev => [...prev, fileToRemove]);
@@ -78,6 +87,7 @@ const App = () => {
     setActiveFiles([]);
     
     addToast(`${filesToRemove.length} ficheiros removidos`, 'info', {
+      duration: 6000,
       action: { label: 'Desfazer', icon: 'undo' },
       onAction: () => {
         setActiveFiles(prev => [...prev, ...filesToRemove]);
@@ -161,11 +171,13 @@ const App = () => {
         {toasts.map(t => (
           <Toast 
             key={t.id} 
+            id={t.id}
             message={t.message} 
             type={t.type} 
+            duration={t.duration}
             action={t.action}
             onAction={t.onAction}
-            onClose={() => removeToast(t.id)} 
+            onClose={removeToast} 
           />
         ))}
       </div>

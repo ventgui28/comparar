@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
 import { CheckCircle, XCircle, Info, X, Undo, ShoppingCart, Settings } from 'lucide-react';
 
-const Toast = ({ message, type = 'success', action, onAction, onClose }) => {
+const Toast = ({ id, message, type = 'success', duration = 5000, action, onAction, onClose }) => {
   useEffect(() => {
-    const timer = setTimeout(onClose, 5000); // 5 seconds for interactive toasts
+    const timer = setTimeout(() => onClose(id), duration);
     return () => clearTimeout(timer);
-  }, [onClose]);
+  }, [id, duration, onClose]);
 
   const icons = {
     success: <CheckCircle size={20} style={{ color: '#22c55e' }} />,
@@ -20,7 +20,10 @@ const Toast = ({ message, type = 'success', action, onAction, onClose }) => {
   };
 
   return (
-    <div className={`toast-card toast-${type} animate-slide-in`}>
+    <div 
+      className={`toast-card toast-${type} animate-slide-in`}
+      style={{ '--duration': `${duration}ms` }}
+    >
       <div className="toast-body">
         <div className="toast-icon">{icons[type]}</div>
         <div className="toast-text-content">
@@ -30,7 +33,7 @@ const Toast = ({ message, type = 'success', action, onAction, onClose }) => {
               className="toast-action-btn"
               onClick={() => {
                 onAction();
-                onClose();
+                onClose(id);
               }}
             >
               {actionIcons[action.icon] || null}
@@ -38,7 +41,7 @@ const Toast = ({ message, type = 'success', action, onAction, onClose }) => {
             </button>
           )}
         </div>
-        <button onClick={onClose} className="toast-close-btn">
+        <button onClick={() => onClose(id)} className="toast-close-btn">
           <X size={16} />
         </button>
       </div>

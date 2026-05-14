@@ -97,4 +97,23 @@ describe('groupAndCompareProducts', () => {
     expect(results[0].prices['file1']).toBe(10);
     expect(results[0].prices['file2']).toBe(12);
   });
+
+  it('should NEVER group products within the same file', () => {
+    const activeFiles = [
+      {
+        id: 'file1',
+        name: 'File 1',
+        data: [
+          { ref: 'REF-A', desc: 'Product 1', price: 10, rowIdx: 1 },
+          { ref: 'REF-A', desc: 'Product 1', price: 10, rowIdx: 2 } // Identical to above
+        ]
+      }
+    ];
+
+    const results = groupAndCompareProducts(activeFiles, '');
+
+    expect(results.length).toBe(2);
+    expect(results[0].rowNumbers['file1']).toBe(1);
+    expect(results[1].rowNumbers['file1']).toBe(2);
+  });
 });

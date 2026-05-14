@@ -19,23 +19,30 @@ export const groupAndCompareProducts = (activeFiles, searchTerm, favorites = [],
 
   // 1. Group EVERYTHING first
   activeFiles.forEach(file => {
-    file.data.forEach(item => {
+    file.data.forEach((item, itemIdx) => {
       const normRef = normalizeReference(item.ref);
       const normName = normalizeDescription(item.desc);
       
       // Candidate key check
       let key = (normName && nameToKey.get(normName)) || (normRef && refToKey.get(normRef));
+      
       if (!key) {
-        key = normName || normRef || `unnamed-${Math.random()}`;
+        key = normName || normRef || `unnamed-${file.id}-${itemIdx}`;
       }
 
-      // Apply manual alias redirection
+      // Apply manual alias redirection (this overrides normal grouping)
       const alias = aliasMap.get(key);
       let currentDesc = item.desc || 'Item sem descrição';
       
       if (alias) {
         key = alias.targetId;
         currentDesc = alias.targetName;
+      }
+      
+      // SAFETY: If the key already has data from THIS file, AND it's not a manual alias redirection,
+      // it's an accidental duplicate in the same file. We must treat it as separate.
+      if (masterMap.has(key) && masterMap.get(key).prices[file.id] !== undefined && !alias) {
+        key = `${key}-row-${file.id}-${itemIdx}`;
       }
       
       if (!masterMap.has(key)) {

@@ -8,16 +8,18 @@ describe('Toast Component', () => {
     expect(screen.getByText('Test Message')).toBeDefined();
   });
 
-  it('calls onClose after 5 seconds', () => {
+  it('calls onClose with id after specified duration', () => {
     vi.useFakeTimers();
     const onClose = vi.fn();
-    render(<Toast message="Test Message" onClose={onClose} />);
+    const id = 123;
+    const duration = 2000;
+    render(<Toast id={id} message="Test Message" duration={duration} onClose={onClose} />);
     
     act(() => {
-      vi.advanceTimersByTime(5000);
+      vi.advanceTimersByTime(2000);
     });
 
-    expect(onClose).toHaveBeenCalled();
+    expect(onClose).toHaveBeenCalledWith(id);
     vi.useRealTimers();
   });
 
