@@ -1,11 +1,5 @@
 import * as XLSX from 'xlsx';
 
-const JUNK_KEYWORDS = [
-  'tabela de compra', 'legenda', 'data de publicação', 
-  'ao remeter esta tabela', 'condições comerciais', 'happygreen',
-  'referência', 'descrição', 'quant.', 'preço un.', 'subtotal'
-];
-
 const NON_PRICE_CHARS_REGEX = /[^\d.,]/g;
 const ALL_DOTS_REGEX = /\./g;
 const HEADER_THRESHOLD_ROWS = 20;
@@ -17,10 +11,9 @@ const HEADER_THRESHOLD_ROWS = 20;
  */
 const isValidRow = (row, isHeaderPhase) => {
   const isNotEmpty = row.some(val => val !== "" && val !== null && val !== undefined);
-  const containsJunk = row.some(val => JUNK_KEYWORDS.some(kw => String(val).toLowerCase().includes(kw)));
   const containsPrice = row.some(val => typeof val === 'number' && val > 0 && val < 10000);
   
-  return isNotEmpty && !containsJunk && (containsPrice || isHeaderPhase);
+  return isNotEmpty && (containsPrice || isHeaderPhase);
 };
 
 export const readRawExcel = (file) => {
@@ -89,7 +82,8 @@ export const parseWithMapping = (rows, mapping, fileName) => {
       const desc = String(row[descCol] || '').trim();
       const price = parsePrice(row[priceCol]);
 
-      if (ref && desc && price > 0) {
+      // Permite produtos que tenham pelo menos uma identificação (ref ou desc) e preço
+      if ((ref || desc) && price > 0) {
         products.push({ ref, desc, price, fileName, rowIdx: row.__rowIdx || (i + 1) });
       }
     }
