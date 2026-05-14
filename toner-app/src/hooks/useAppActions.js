@@ -1,4 +1,4 @@
-import { saveFiles } from '../utils/db';
+import { clearAllData } from '../utils/db';
 
 export const useAppActions = (addToCart, addToast, onCartOpen) => {
   const handleAddToCart = (id, qty, shopId) => {
@@ -13,7 +13,7 @@ export const useAppActions = (addToCart, addToast, onCartOpen) => {
 
   const handleResetTotal = async () => {
     localStorage.clear();
-    await saveFiles([]);
+    await clearAllData();
     window.location.reload();
   };
 

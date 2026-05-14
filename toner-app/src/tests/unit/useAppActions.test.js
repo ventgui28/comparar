@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useAppActions } from '../../hooks/useAppActions';
-import { saveFiles } from '../../utils/db';
+import { clearAllData } from '../../utils/db';
 
 vi.mock('../../utils/db', () => ({
-  saveFiles: vi.fn()
+  clearAllData: vi.fn()
 }));
 
 describe('useAppActions', () => {
@@ -52,7 +52,7 @@ describe('useAppActions', () => {
     await handleResetTotal();
     
     expect(window.localStorage.clear).toHaveBeenCalled();
-    expect(saveFiles).toHaveBeenCalledWith([]);
+    expect(clearAllData).toHaveBeenCalled();
     expect(window.location.reload).toHaveBeenCalled();
   });
 });

@@ -115,3 +115,14 @@ export const loadFiles = async () => {
   const db = await initDB();
   return db.getAll(ACTIVE_FILES_STORE);
 };
+
+export const clearAllData = async () => {
+  const db = await initDB();
+  const tx = db.transaction([ACTIVE_FILES_STORE, PROFILES_STORE, ALIASES_STORE], 'readwrite');
+  await Promise.all([
+    tx.objectStore(ACTIVE_FILES_STORE).clear(),
+    tx.objectStore(PROFILES_STORE).clear(),
+    tx.objectStore(ALIASES_STORE).clear()
+  ]);
+  await tx.done;
+};
