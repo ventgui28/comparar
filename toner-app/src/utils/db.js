@@ -116,6 +116,20 @@ export const loadFiles = async () => {
   return db.getAll(ACTIVE_FILES_STORE);
 };
 
+export const clearGranularData = async (options) => {
+  const db = await initDB();
+  const storesToClear = [];
+  if (options.files) storesToClear.push(ACTIVE_FILES_STORE);
+  if (options.profiles) storesToClear.push(PROFILES_STORE);
+  if (options.aliases) storesToClear.push(ALIASES_STORE);
+
+  if (storesToClear.length === 0) return;
+
+  const tx = db.transaction(storesToClear, 'readwrite');
+  await Promise.all(storesToClear.map(store => tx.objectStore(store).clear()));
+  await tx.done;
+};
+
 export const clearAllData = async () => {
   const db = await initDB();
   const tx = db.transaction([ACTIVE_FILES_STORE, PROFILES_STORE, ALIASES_STORE], 'readwrite');
