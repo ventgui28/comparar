@@ -23,12 +23,12 @@ describe('groupAndCompareProducts', () => {
     const results = groupAndCompareProducts(activeFiles, '');
 
     expect(results.length).toBe(1);
-    expect(results[0].id).toBe('toner 17a');
+    expect(results[0].id).toBe('refa');
     expect(results[0].prices['file1']).toBe(10);
     expect(results[0].prices['file2']).toBe(12);
   });
 
-  it('should create different groups for different descriptions', () => {
+  it('should group products if reference is same even if description is slightly different', () => {
     const activeFiles = [
       {
         id: 'file1',
@@ -48,7 +48,8 @@ describe('groupAndCompareProducts', () => {
 
     const results = groupAndCompareProducts(activeFiles, '');
 
-    expect(results.length).toBe(2);
+    expect(results.length).toBe(1);
+    expect(results[0].id).toBe('sameref');
   });
 
   it('should filter results based on search term in reference', () => {
@@ -66,7 +67,7 @@ describe('groupAndCompareProducts', () => {
     const results = groupAndCompareProducts(activeFiles, '217');
 
     expect(results.length).toBe(1);
-    expect(results[0].id).toBe('toner 17a');
+    expect(results[0].id).toBe('cf217a');
   });
 
   it('should include trend data when priceHistory is provided', () => {
@@ -79,7 +80,7 @@ describe('groupAndCompareProducts', () => {
     ];
 
     const priceHistory = {
-      'toner 17a': {
+      'cf217a': {
         records: [
           { date: '2024-01-01', price: 10 }
         ]

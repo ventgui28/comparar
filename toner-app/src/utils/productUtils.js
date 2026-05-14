@@ -1,5 +1,5 @@
 import { calculateTrend } from './stats/priceTrend';
-import { getProductKey } from './normalization';
+import { getProductKey, normalizeReference, normalizeDescription } from './normalization';
 
 /**
  * Groups products from multiple files, calculates trends, and filters based on search term.
@@ -16,6 +16,10 @@ export const groupAndCompareProducts = (activeFiles, searchTerm, favorites = [],
   const s = searchTerm ? searchTerm.toLowerCase() : '';
   const isSearchEmpty = !s;
   const masterMap = new Map();
+  
+  // Mapping to track relationships between references and names
+  const refToKey = new Map();
+  const nameToKey = new Map();
 
   activeFiles.forEach(file => {
     file.data.forEach(item => {
@@ -23,9 +27,18 @@ export const groupAndCompareProducts = (activeFiles, searchTerm, favorites = [],
       const matchesDesc = item.desc && String(item.desc).toLowerCase().includes(s);
       
       if (isSearchEmpty || matchesRef || matchesDesc) {
-        const key = getProductKey(item);
+        const normRef = normalizeReference(item.ref);
+        const normName = normalizeDescription(item.desc);
         
-        if (!masterMap.has(key)) {
+        // Find existing key by reference or name
+        let key = (normRef && refToKey.get(normRef)) || (normName && nameToKey.get(normName));
+        
+        if (!key) {
+          // New product group - prioritize ref as ID if available, otherwise name
+          key = normRef || normName || `unnamed-${Math.random()}`;
+          if (normRef) refToKey.set(normRef, key);
+          if (normName) nameToKey.set(normName, key);
+          
           masterMap.set(key, { 
             id: key,
             desc: item.desc || 'Item sem descrição', 
@@ -33,6 +46,10 @@ export const groupAndCompareProducts = (activeFiles, searchTerm, favorites = [],
             refs: {},
             rowNumbers: {}
           });
+        } else {
+          // Update cross-mappings for hybrid matching
+          if (normRef && !refToKey.has(normRef)) refToKey.set(normRef, key);
+          if (normName && !nameToKey.has(normName)) nameToKey.set(normName, key);
         }
         
         const entry = masterMap.get(key);

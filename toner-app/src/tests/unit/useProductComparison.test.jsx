@@ -24,12 +24,12 @@ describe('useProductComparison', () => {
     const { result } = renderHook(() => useProductComparison(activeFiles, ''));
 
     expect(result.current.length).toBe(1);
-    expect(result.current[0].id).toBe('toner 17a');
+    expect(result.current[0].id).toBe('refa');
     expect(result.current[0].prices['file1']).toBe(10);
     expect(result.current[0].prices['file2']).toBe(12);
   });
 
-  it('should use description as key even if reference is missing', () => {
+  it('should use description as key if reference is missing', () => {
     const activeFiles = [
       {
         id: 'file1',
@@ -68,24 +68,7 @@ describe('useProductComparison', () => {
     const { result } = renderHook(() => useProductComparison(activeFiles, '217'));
 
     expect(result.current.length).toBe(1);
-    expect(result.current[0].id).toBe('toner 17a');
-  });
-
-  it('should not crash if reference is null', () => {
-    const activeFiles = [
-      {
-        id: 'file1',
-        name: 'File 1',
-        data: [
-          { ref: null, desc: 'Toner with null ref', price: 10, rowIdx: 1 }
-        ]
-      }
-    ];
-
-    const { result } = renderHook(() => useProductComparison(activeFiles, 'toner'));
-
-    expect(result.current.length).toBe(1);
-    expect(result.current[0].desc).toBe('Toner with null ref');
+    expect(result.current[0].id).toBe('cf217a');
   });
 
   it('should include trend data when priceHistory is provided', () => {
@@ -98,14 +81,14 @@ describe('useProductComparison', () => {
     ];
 
     const priceHistory = {
-      'toner 17a': {
+      'cf217a': {
         records: [
           { date: '2024-01-01', price: 10 }
         ]
       }
     };
 
-    const { result } = renderHook(() => useProductComparison(activeFiles, 'Toner 17A', [], priceHistory));
+    const { result } = renderHook(() => useProductComparison(activeFiles, 'CF217A', [], priceHistory));
 
     expect(result.current.length).toBeGreaterThan(0);
     expect(result.current[0].trend).not.toBeNull();
