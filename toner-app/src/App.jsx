@@ -7,7 +7,6 @@ import { useToner } from './context/TonerContext';
 import { useProductComparison } from './hooks/useProductComparison';
 import { useExcelHandler } from './hooks/useExcelHandler';
 import { useAppActions } from './hooks/useAppActions';
-import PriceHistoryModal from './components/shared/PriceHistoryModal';
 import MergeModal from './components/shared/MergeModal';
 import AliasesModal from './components/shared/AliasesModal';
 import ConfirmModal from './components/shared/ConfirmModal';
@@ -24,7 +23,6 @@ const App = () => {
     toggleFavorite, 
     addToCart, 
     updateCart, 
-    priceHistory,
     aliases,
     addManualAlias,
     removeManualGroup,
@@ -35,7 +33,6 @@ const App = () => {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [showHistory, setShowHistory] = useState(null);
   const [showMerge, setShowMerge] = useState(null);
   const [showAliases, setShowAliases] = useState(false);
   const [confirmUnmerge, setConfirmUnmerge] = useState(null);
@@ -47,7 +44,7 @@ const App = () => {
     handleFiles,
     handleFileDrop, 
     handleMappingConfirm 
-  } = useExcelHandler(setActiveFiles, favorites);
+  } = useExcelHandler(setActiveFiles);
 
   const { 
     toast, 
@@ -65,7 +62,7 @@ const App = () => {
     setCurrentPage(1);
   }, [debouncedSearch]);
 
-  const comparisonData = useProductComparison(activeFiles, debouncedSearch, favorites, priceHistory, aliases);
+  const comparisonData = useProductComparison(activeFiles, debouncedSearch, favorites, aliases);
   
   // Pagination logic
   const totalPages = Math.ceil(comparisonData.length / ROWS_PER_PAGE);
@@ -219,8 +216,8 @@ const App = () => {
                 </span>
               </div>
               <div className="metric-item">
-                <span className="metric-label">Favoritos</span>
-                <span className="metric-value">{favorites.length}</span>
+                <span className="metric-label">Arquivos</span>
+                <span className="metric-value">{activeFiles?.length || 0}</span>
               </div>
             </div>
           )}
@@ -249,7 +246,6 @@ const App = () => {
                   onAddToCart={handleAddToCart}
                   favorites={favorites}
                   onToggleFavorite={toggleFavorite}
-                  onShowHistory={setShowHistory}
                   onShowMerge={setShowMerge}
                   onUnmerge={setConfirmUnmerge}
                   aliases={aliases}
@@ -326,14 +322,6 @@ const App = () => {
           excelBundle={showMapper.excelBundle}
           onConfirm={handleMappingConfirm}
           onCancel={() => setShowMapper(null)}
-        />
-      )}
-
-      {showHistory && (
-        <PriceHistoryModal 
-          productId={showHistory.id} 
-          productName={showHistory.desc} 
-          onClose={() => setShowHistory(null)} 
         />
       )}
 

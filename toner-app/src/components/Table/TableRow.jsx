@@ -1,4 +1,4 @@
-import { Star, TrendingUp, ShoppingCart, Link, Link2Off } from 'lucide-react';
+import { Star, ShoppingCart, Link, Link2Off } from 'lucide-react';
 import PriceDisplay from './PriceDisplay';
 
 const TableRow = ({ 
@@ -7,7 +7,6 @@ const TableRow = ({
   onAddToCart, 
   isFavorite, 
   onToggleFavorite, 
-  onShowHistory, 
   onShowMerge,
   onUnmerge,
   onToggleRow,
@@ -36,15 +35,6 @@ const TableRow = ({
       
       <td className="action-cell">
         <div style={{ display: 'flex', gap: '0.2rem' }}>
-          {isFavorite && (
-            <button 
-              onClick={() => onShowHistory(item)} 
-              className="btn-icon history"
-              title="Ver Histórico de Preços"
-            >
-              <TrendingUp size={18} />
-            </button>
-          )}
           {isGroup ? (
             <button 
               onClick={() => onUnmerge(item.id)} 

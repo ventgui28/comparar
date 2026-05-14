@@ -8,8 +8,6 @@ vi.mock('../../utils/db', () => ({
   deleteProfile: vi.fn(),
   initDB: vi.fn(),
   saveProfile: vi.fn(),
-  getPriceHistory: vi.fn(),
-  savePriceHistory: vi.fn(),
   saveFiles: vi.fn(),
   loadFiles: vi.fn()
 }));

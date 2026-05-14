@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { saveFiles, loadFiles, getPriceHistory, savePriceHistory, getAliases, saveAlias, deleteAlias, deleteAliasesByTarget } from '../utils/db';
+import { saveFiles, loadFiles, getAliases, saveAlias, deleteAlias, deleteAliasesByTarget } from '../utils/db';
 
 const TonerContext = createContext();
 
@@ -7,45 +7,12 @@ export const TonerProvider = ({ children }) => {
   const [activeFiles, setActiveFiles] = useState(null);
   const [cart, setCart] = useState(() => JSON.parse(localStorage.getItem('toner-cart')) || {});
   const [favorites, setFavorites] = useState(() => JSON.parse(localStorage.getItem('toner-favorites')) || []);
-  const [priceHistory, setPriceHistory] = useState({});
   const [aliases, setAliases] = useState([]);
 
   useEffect(() => {
     loadFiles().then(setActiveFiles);
     getAliases().then(setAliases);
   }, []);
-
-  useEffect(() => {
-    let ignore = false;
-    const fetchHistory = async () => {
-      if (favorites.length === 0) {
-        setPriceHistory({});
-        return;
-      }
-
-      const histories = await Promise.all(
-        favorites.map(async (id) => {
-          const records = await getPriceHistory(id);
-          return { id, records };
-        })
-      );
-
-      if (ignore) return;
-
-      const historyMap = {};
-      histories.forEach(({ id, records }) => {
-        if (records && records.length > 0) {
-          historyMap[id] = { records };
-        }
-      });
-      setPriceHistory(historyMap);
-    };
-
-    fetchHistory();
-    return () => {
-      ignore = true;
-    };
-  }, [favorites]);
 
   useEffect(() => {
     localStorage.setItem('toner-cart', JSON.stringify(cart));
@@ -58,23 +25,6 @@ export const TonerProvider = ({ children }) => {
       const isNowFavorite = !prev.includes(productId);
       return isNowFavorite ? [...prev, productId] : prev.filter(id => id !== productId);
     });
-
-    const isAdding = !favorites.includes(productId);
-    if (isAdding && activeFiles) {
-      let bestPrice = Infinity;
-      activeFiles.forEach(file => {
-        const item = file.data.find(d => {
-          const normalizeRef = (ref) => ref ? ref.toLowerCase().replace(/[^a-z0-9]/g, '').trim() : '';
-          const normalizeDesc = (text) => text ? text.toLowerCase().replace(/\(.*\)/g, '').replace(/\s+/g, ' ').trim() : '';
-          return (normalizeRef(d.ref) || normalizeDesc(d.desc)) === productId;
-        });
-        if (item && item.price < bestPrice) bestPrice = item.price;
-      });
-
-      if (bestPrice !== Infinity) {
-        savePriceHistory(productId, bestPrice, [productId]);
-      }
-    }
   };
 
   const addToCart = (productId, qty, shopId) => {
@@ -127,7 +77,6 @@ export const TonerProvider = ({ children }) => {
     toggleFavorite, 
     addToCart, 
     updateCart, 
-    priceHistory,
     aliases,
     addManualAlias,
     removeManualGroup,

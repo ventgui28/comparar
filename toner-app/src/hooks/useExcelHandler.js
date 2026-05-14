@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { readRawExcel, parseWithMapping } from '../utils/excelParser';
-import { savePriceHistory } from '../utils/db';
 import { getProductKey } from '../utils/normalization';
 
-export const useExcelHandler = (setActiveFiles, favorites) => {
+export const useExcelHandler = (setActiveFiles) => {
   const [showMapper, setShowMapper] = useState(null);
   const [fileQueue, setFileQueue] = useState([]);
 
@@ -54,11 +53,6 @@ export const useExcelHandler = (setActiveFiles, favorites) => {
   const handleMappingConfirm = (mapping, rows) => {
     const parsed = parseWithMapping(rows, mapping, showMapper.fileName);
     
-    parsed.forEach(item => {
-      const key = getProductKey(item);
-      savePriceHistory(key, item.price, favorites);
-    });
-
     setActiveFiles(prev => [
       ...(prev || []).filter(f => f.name !== showMapper.fileName), 
       { id: Date.now(), name: showMapper.fileName, data: parsed, mapping }

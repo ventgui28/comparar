@@ -9,7 +9,6 @@ const ComparisonTable = ({
   onAddToCart, 
   favorites, 
   onToggleFavorite,
-  onShowHistory,
   onShowMerge,
   onUnmerge,
   aliases
@@ -41,7 +40,6 @@ const ComparisonTable = ({
                 onAddToCart={onAddToCart}
                 isFavorite={isFavorite}
                 onToggleFavorite={onToggleFavorite}
-                onShowHistory={onShowHistory}
                 onShowMerge={onShowMerge}
                 onUnmerge={onUnmerge}
                 onToggleRow={toggleRow}

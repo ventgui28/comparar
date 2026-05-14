@@ -70,29 +70,4 @@ describe('useProductComparison', () => {
     expect(result.current.length).toBe(1);
     expect(result.current[0].id).toBe('toner 17a');
   });
-
-  it('should include trend data when priceHistory is provided', () => {
-    const activeFiles = [
-      {
-        id: 'file1',
-        name: 'File 1',
-        data: [{ ref: 'CF217A', desc: 'Toner 17A', price: 9, rowIdx: 1 }]
-      }
-    ];
-
-    const priceHistory = {
-      'toner 17a': {
-        records: [
-          { date: '2024-01-01', price: 10 }
-        ]
-      }
-    };
-
-    const { result } = renderHook(() => useProductComparison(activeFiles, 'CF217A', [], priceHistory));
-
-    expect(result.current.length).toBeGreaterThan(0);
-    expect(result.current[0].trend).not.toBeNull();
-    expect(result.current[0].trend.type).toBe('min');
-    expect(result.current[0].trend.percent).toBeCloseTo(-10);
-  });
 });
