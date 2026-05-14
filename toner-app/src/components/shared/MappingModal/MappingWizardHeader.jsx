@@ -1,6 +1,7 @@
 import { Eye, EyeOff, Save, Trash2 } from 'lucide-react';
 
 const MappingWizardHeader = ({ 
+  fileName,
   activeSlot, 
   setActiveSlot, 
   selectedSheet, 
@@ -26,6 +27,11 @@ const MappingWizardHeader = ({
 
   return (
     <div className="wizard-header">
+      <div style={{ marginBottom: '1.5rem', textAlign: 'left' }}>
+        <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-main)' }}>Configurar Mapeamento</h2>
+        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Ficheiro: <strong style={{ color: 'var(--primary)' }}>{fileName}</strong></p>
+      </div>
+
       <div className="profile-controls">
         <div className="profile-input-group">
           <input 

@@ -298,31 +298,6 @@ const App = () => {
           </section>
         )}
 
-        <section className="dashboard-metrics animate-in">
-          {activeFiles && activeFiles.length > 0 && (
-            <div className="metrics-grid">
-              <div className="metric-item">
-                <span className="metric-label">Produtos Comparados</span>
-                <span className="metric-value">{comparisonData.length}</span>
-              </div>
-              <div className="metric-item">
-                <span className="metric-label">Fornecedores Ativos</span>
-                <span className="metric-value">{activeFiles.length}</span>
-              </div>
-              <div className="metric-item highlight">
-                <span className="metric-label">Poupança Potencial</span>
-                <span className="metric-value">
-                  {comparisonData.reduce((acc, item) => acc + (item.delta || 0), 0).toFixed(2)}€
-                </span>
-              </div>
-              <div className="metric-item">
-                <span className="metric-label">Arquivos</span>
-                <span className="metric-value">{activeFiles?.length || 0}</span>
-              </div>
-            </div>
-          )}
-        </section>
-
         <section className="search-section animate-in">
           <div className="search-container">
             <Search className="search-icon" size={20} />
