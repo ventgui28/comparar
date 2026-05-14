@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Search, Upload, X, ChevronLeft, ChevronRight, Settings } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { Search, Upload, X, ChevronLeft, ChevronRight, Settings, ChevronDown } from 'lucide-react';
 import MappingModal from './components/shared/MappingModal';
 import ComparisonTable from './components/Table/ComparisonTable';
 import { CartManager } from './components/shared/CartManager';
@@ -9,6 +9,7 @@ import { useExcelHandler } from './hooks/useExcelHandler';
 import { useAppActions } from './hooks/useAppActions';
 import MergeModal from './components/shared/MergeModal';
 import AliasesModal from './components/shared/AliasesModal';
+import ResetModal from './components/shared/ResetModal';
 import ConfirmModal from './components/shared/ConfirmModal';
 import Toast from './components/shared/Toast';
 import './App.css';
@@ -29,7 +30,8 @@ const App = () => {
     aliases,
     addManualAlias,
     removeManualGroup,
-    removeManualAlias
+    removeManualAlias,
+    granularReset
   } = useToner();
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -39,10 +41,12 @@ const App = () => {
   const [showMerge, setShowMerge] = useState(null);
   const [showAliases, setShowAliases] = useState(false);
   const [confirmUnmerge, setConfirmUnmerge] = useState(null);
-  const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [showResetDropdown, setShowResetDropdown] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [toasts, setToasts] = useState([]);
   const [forceManual, setForceManual] = useState(false);
+  const dropdownRef = useRef(null);
 
   const addToast = useCallback((message, type = 'success', options = {}) => {
     const id = Date.now();
@@ -112,6 +116,23 @@ const App = () => {
     handleAddToCart, 
     handleResetTotal 
   } = useAppActions(addToCart, addToast, setIsCartOpen);
+
+  const handleGranularConfirm = async (options) => {
+    await granularReset(options);
+    setShowResetModal(false);
+    addToast("Limpeza concluída com sucesso.", "success");
+  };
+
+  // Fechar dropdown ao clicar fora
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowResetDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleUpdateCart = (productId, qty) => {
     if (qty === 0) {
@@ -242,9 +263,30 @@ const App = () => {
               </button>
             )}
             
-            <button onClick={() => setShowResetConfirm(true)} className="btn-reset">
-              Reset Total
-            </button>
+            <div className="reset-group" ref={dropdownRef}>
+              <button onClick={() => setShowResetModal(true)} className="btn-reset">
+                Reset
+              </button>
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowResetDropdown(!showResetDropdown);
+                }} 
+                className="btn-reset-arrow"
+                title="Opções de Reset"
+              >
+                <ChevronDown size={14} />
+              </button>
+              
+              {showResetDropdown && (
+                <div className="dropdown-menu animate-in">
+                  <button onClick={() => { granularReset({ cart: true }); setShowResetDropdown(false); }}>Limpar Carrinho</button>
+                  <button onClick={() => { granularReset({ files: true, cart: true }); setShowResetDropdown(false); }}>Limpar Sessão</button>
+                  <button onClick={() => { handleResetTotal(); setShowResetDropdown(false); }}>Reset Total</button>
+                  <button onClick={() => { setShowResetModal(true); setShowResetDropdown(false); }}>Personalizado...</button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </header>
@@ -432,14 +474,10 @@ const App = () => {
         />
       )}
 
-      {showResetConfirm && (
-        <ConfirmModal
-          title="Limpar todos os dados?"
-          message="Tens a certeza que desejas limpar todos os dados? Isto irá remover todos os ficheiros carregados e o teu carrinho atual."
-          confirmText="Sim, Limpar Tudo"
-          cancelText="Manter Dados"
-          onConfirm={handleResetTotal}
-          onCancel={() => setShowResetConfirm(false)}
+      {showResetModal && (
+        <ResetModal 
+          onConfirm={handleGranularConfirm}
+          onClose={() => setShowResetModal(false)}
         />
       )}
     </div>

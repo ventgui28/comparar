@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { saveFiles, loadFiles, getAliases, saveAlias, deleteAlias, deleteAliasesByTarget } from '../utils/db';
+import { saveFiles, loadFiles, getAliases, saveAlias, deleteAlias, deleteAliasesByTarget, clearGranularData } from '../utils/db';
 
 const TonerContext = createContext();
 
@@ -15,10 +15,40 @@ export const TonerProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('toner-cart', JSON.stringify(cart));
-    localStorage.setItem('toner-favorites', JSON.stringify(favorites));
-    if (activeFiles !== null) saveFiles(activeFiles);
+    if (Object.keys(cart).length > 0) {
+      localStorage.setItem('toner-cart', JSON.stringify(cart));
+    }
+    if (favorites.length > 0) {
+      localStorage.setItem('toner-favorites', JSON.stringify(favorites));
+    }
+    if (activeFiles !== null && activeFiles.length > 0) saveFiles(activeFiles);
   }, [cart, favorites, activeFiles]);
+
+  const granularReset = async (options) => {
+    // 1. Limpar IndexedDB
+    await clearGranularData(options);
+
+    // 2. Limpar LocalStorage e atualizar estado do React
+    if (options.files) {
+      setActiveFiles([]);
+      // Ficheiros implica reset do Carrinho
+      options.cart = true;
+    }
+    
+    if (options.cart) {
+      setCart({});
+      localStorage.removeItem('toner-cart');
+    }
+
+    if (options.favorites) {
+      setFavorites([]);
+      localStorage.removeItem('toner-favorites');
+    }
+
+    if (options.aliases) {
+      setAliases([]);
+    }
+  };
 
   const toggleFavorite = (productId) => {
     setFavorites(prev => {
@@ -95,9 +125,11 @@ export const TonerProvider = ({ children }) => {
     addToCart, 
     updateCart, 
     aliases,
+    setAliases,
     addManualAlias,
     removeManualGroup,
-    removeManualAlias
+    removeManualAlias,
+    granularReset
   };
   return <TonerContext.Provider value={value}>{children}</TonerContext.Provider>;
 };
