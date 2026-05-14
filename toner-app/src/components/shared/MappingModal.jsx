@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Save, Trash2 } from 'lucide-react';
+import { Save, Trash2, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import useMappingState from '../../hooks/useMappingState';
 import MappingPreviewTable from './MappingModal/MappingPreviewTable';
 import ConfirmModal from './ConfirmModal';
@@ -118,25 +118,28 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
   return (
     <div className="modal-overlay">
       <div className="modal-content animate-in" style={{ display: 'flex', flexDirection: 'column', height: '90vh' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-main)', margin: 0 }}>Configurar Mapeamento</h2>
-          <button 
-            onClick={toggleSidebar}
-            style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', cursor: 'pointer', background: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: '6px' }}
-          >
-            {isSidebarVisible ? '« Ocultar Painel' : '» Mostrar Painel'}
-          </button>
-        </div>
+        <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-main)', margin: '0 0 1rem 0' }}>Configurar Mapeamento</h2>
 
         <div style={{ 
           display: 'grid', 
-          gridTemplateColumns: isSidebarVisible ? 'var(--sidebar-width, 300px) 1fr' : '1fr', 
+          gridTemplateColumns: isSidebarVisible ? 'var(--sidebar-width, 300px) 1fr' : '50px 1fr', 
           gap: '1rem', 
           flex: 1, 
           overflow: 'hidden' 
         }}>
-          {isSidebarVisible && (
-            <aside className="mapping-sidebar">
+          <aside className="mapping-sidebar" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: isSidebarVisible ? 'space-between' : 'center', marginBottom: '0.5rem' }}>
+              {isSidebarVisible && <label className="label-tiny">Configuração</label>}
+              <button 
+                onClick={toggleSidebar}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', padding: '4px' }}
+                title={isSidebarVisible ? 'Ocultar Painel' : 'Mostrar Painel'}
+              >
+                {isSidebarVisible ? <PanelLeftClose size={18} /> : <PanelLeftOpen size={18} />}
+              </button>
+            </div>
+
+            {isSidebarVisible && (
               <div className="wizard-header">
                 {/* 1. Folha */}
                 <div style={{ marginBottom: '1.2rem' }}>
@@ -221,8 +224,8 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
                   </div>
                 </div>
               </div>
-            </aside>
-          )}
+            )}
+          </aside>
 
           <main className="preview-container" style={{ overflow: 'auto' }}>
             <MappingPreviewTable 
