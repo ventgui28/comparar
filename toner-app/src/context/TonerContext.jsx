@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { saveFiles, loadFiles, getPriceHistory, savePriceHistory, getAliases, saveAlias, deleteAlias } from '../utils/db';
+import { saveFiles, loadFiles, getPriceHistory, savePriceHistory, getAliases, saveAlias, deleteAlias, deleteAliasesByTarget } from '../utils/db';
 
 const TonerContext = createContext();
 

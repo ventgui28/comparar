@@ -47,7 +47,11 @@ const TableRow = ({
           )}
           {isGroup ? (
             <button 
-              onClick={() => onUnmerge(item.id)} 
+              onClick={() => {
+                if (window.confirm('Tens a certeza que desejas desunir este grupo? Todos os produtos voltarão a ser linhas separadas.')) {
+                  onUnmerge(item.id);
+                }
+              }} 
               className="btn-icon history"
               title="Desunir Produtos (Separar tudo)"
               style={{ color: '#ef4444' }}
