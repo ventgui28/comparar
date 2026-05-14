@@ -1,7 +1,28 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useAppActions } from '../../hooks/useAppActions';
+import { saveFiles } from '../../utils/db';
+
+vi.mock('../../utils/db', () => ({
+  saveFiles: vi.fn()
+}));
 
 describe('useAppActions', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    // Mock window.location.reload
+    delete window.location;
+    window.location = { reload: vi.fn() };
+    // Mock window.confirm
+    window.confirm = vi.fn(() => true);
+    // Mock localStorage
+    Object.defineProperty(window, 'localStorage', {
+      value: {
+        clear: vi.fn(),
+      },
+      writable: true
+    });
+  });
+
   it('should call addToCart and addToast with action when handleAddToCart is called', () => {
     const addToCart = vi.fn();
     const addToast = vi.fn();
@@ -25,5 +46,28 @@ describe('useAppActions', () => {
     const options = addToast.mock.calls[0][2];
     options.onAction();
     expect(onCartOpen).toHaveBeenCalledWith(true);
+  });
+
+  it('should clear data and reload when handleResetTotal is confirmed', async () => {
+    const { handleResetTotal } = useAppActions();
+    
+    await handleResetTotal();
+    
+    expect(window.confirm).toHaveBeenCalled();
+    expect(window.localStorage.clear).toHaveBeenCalled();
+    expect(saveFiles).toHaveBeenCalledWith([]);
+    expect(window.location.reload).toHaveBeenCalled();
+  });
+
+  it('should not clear data if handleResetTotal is cancelled', async () => {
+    window.confirm = vi.fn(() => false);
+    const { handleResetTotal } = useAppActions();
+    
+    await handleResetTotal();
+    
+    expect(window.confirm).toHaveBeenCalled();
+    expect(window.localStorage.clear).not.toHaveBeenCalled();
+    expect(saveFiles).not.toHaveBeenCalled();
+    expect(window.location.reload).not.toHaveBeenCalled();
   });
 });

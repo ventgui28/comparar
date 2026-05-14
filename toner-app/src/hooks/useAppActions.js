@@ -1,3 +1,5 @@
+import { saveFiles } from '../utils/db';
+
 export const useAppActions = (addToCart, addToast, onCartOpen) => {
   const handleAddToCart = (id, qty, shopId) => {
     addToCart(id, qty, shopId);
@@ -9,9 +11,12 @@ export const useAppActions = (addToCart, addToast, onCartOpen) => {
     }
   };
 
-  const handleResetTotal = () => {
-    localStorage.clear();
-    window.location.reload();
+  const handleResetTotal = async () => {
+    if (confirm('Tem a certeza que deseja limpar todos os dados (carrinho e ficheiros)?')) {
+      localStorage.clear();
+      await saveFiles([]);
+      window.location.reload();
+    }
   };
 
   return {
