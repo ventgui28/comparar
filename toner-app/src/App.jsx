@@ -109,6 +109,14 @@ const App = () => {
     handleResetTotal 
   } = useAppActions(addToCart, addToast, setIsCartOpen);
 
+  // Clear cart whenever active files change to ensure price integrity
+  useEffect(() => {
+    if (Object.keys(cart).length > 0) {
+      setCart({});
+      addToast("Carrinho limpo devido a alteração nos fornecedores.", "info", { duration: 3000 });
+    }
+  }, [activeFiles.length]); // Simplified check: clear when count changes
+
   useEffect(() => {
     const handler = setTimeout(() => setDebouncedSearch(searchTerm), SEARCH_DEBOUNCE_MS);
     return () => clearTimeout(handler);
