@@ -198,17 +198,17 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
                     Para importar os toners/tinteiros, selecione cada opção e clique na coluna correspondente:
                   </p>
 
-                  <div className="step-indicator-row" style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginBottom: '1.2rem' }}>
+                  <div className="step-indicator-row" style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1rem' }}>
                     {[
-                      { id: 'ref', label: '1. REFERÊNCIA' },
-                      { id: 'name', label: '2. NOME' },
-                      { id: 'price', label: '3. PREÇO' }
+                      { id: 'ref', label: 'REF' },
+                      { id: 'name', label: 'NOME' },
+                      { id: 'price', label: 'PREÇO' }
                     ].map(slot => (
                       <button 
                         key={slot.id}
                         className={`pill slot-${slot.id} ${activeSlot === slot.id ? 'active' : ''}`}
                         onClick={() => setActiveSlot(slot.id)}
-                        style={{ padding: '0.5rem 1.5rem', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.025em' }}
+                        style={{ padding: '0.4rem 0.8rem', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.025em' }}
                       >
                         {slot.label}
                       </button>
