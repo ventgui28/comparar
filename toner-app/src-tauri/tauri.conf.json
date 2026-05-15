@@ -1,8 +1,8 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "TonerApp",
+  "productName": "Comparador Tinteiros",
   "version": "0.1.0",
-  "identifier": "com.tauri.dev",
+  "identifier": "pt.comparacaotinteiros.app",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:5173",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "TonerApp",
+        "title": "Comparador de Toners e Tinteiros",
         "width": 800,
         "height": 600,
         "resizable": true,
