@@ -415,6 +415,18 @@ body {
   align-items: flex-start;
   text-align: left;
   gap: 0.25rem;
+  padding: 1.5rem;
+  width: 100%;
+}
+
+.product-info-cell .product-name {
+  text-align: left;
+  display: block;
+}
+
+.product-info-cell .product-ref {
+  text-align: left;
+  display: block;
 }
 
 .product-name {
