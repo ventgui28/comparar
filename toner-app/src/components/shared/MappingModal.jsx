@@ -118,7 +118,7 @@ const MappingModal = ({ excelBundle, onConfirm, onCancel, fileName }) => {
   return (
     <div className="modal-overlay">
       <div className="modal-content animate-in" style={{ display: 'flex', flexDirection: 'column', height: '90vh' }}>
-        <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-main)', margin: '0 0 1rem 0' }}>Configurar Mapeamento</h2>
+        <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-main)', margin: '0 0 1rem 0' }}>Configurar Mapeamento{fileName ? ` - ${fileName}` : ''}</h2>
 
         <div style={{ 
           display: 'grid', 
