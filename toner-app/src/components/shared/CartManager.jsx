@@ -1,4 +1,7 @@
 import * as XLSX from 'xlsx';
+import { isTauri } from '@tauri-apps/api/core';
+import { save } from '@tauri-apps/plugin-dialog';
+import { writeFile } from '@tauri-apps/plugin-fs';
 import { X, FileDown, Plus, Minus, Trash2 } from 'lucide-react';
 
 export const CartManager = ({ cart, products, activeFiles, aliases = [], isOpen, onClose, onUpdateCart }) => {
@@ -44,7 +47,7 @@ export const CartManager = ({ cart, products, activeFiles, aliases = [], isOpen,
     return acc + ((prod.prices[shopId] || 0) * qty);
   }, 0);
 
-  const exportCart = () => {
+  const exportCart = async () => {
     const wb = XLSX.utils.book_new();
     const grouped = {};
 
@@ -65,11 +68,31 @@ export const CartManager = ({ cart, products, activeFiles, aliases = [], isOpen,
     Object.entries(grouped).forEach(([shopId, items]) => {
       const file = activeFiles.find(f => String(f.id) === String(shopId));
       const ws = XLSX.utils.json_to_sheet(items);
-      const sheetName = (file?.name || `Loja_${shopId}`).substring(0, 31);
+      const sheetName = (file?.name || `Fornecedor_${shopId}`).substring(0, 31);
       XLSX.utils.book_append_sheet(wb, ws, sheetName);
     });
 
-    XLSX.writeFile(wb, 'Carrinho_Compras.xlsx');
+    if (isTauri()) {
+      try {
+        const filePath = await save({
+          title: 'Exportar Carrinho',
+          defaultPath: 'Carrinho_Compras.xlsx',
+          filters: [{
+            name: 'Excel Workbook',
+            extensions: ['xlsx']
+          }]
+        });
+
+        if (filePath) {
+          const buffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+          await writeFile(filePath, buffer);
+        }
+      } catch (err) {
+        console.error("Failed to save file via Tauri:", err);
+      }
+    } else {
+      XLSX.writeFile(wb, 'Carrinho_Compras.xlsx');
+    }
   };
 
   return (
