@@ -1,0 +1,34 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Default capability",
+  "windows": [
+    "main"
+  ],
+  "permissions": [
+    "core:default",
+    "core:app:default",
+    "core:window:default",
+    {
+      "identifier": "dialog:allow-ask",
+      "allow": [
+        {
+          "message": "Tens a certeza?",
+          "title": "Confirmação",
+          "okLabel": "Sim",
+          "cancelLabel": "Não"
+        }
+      ]
+    },
+    {
+      "identifier": "fs:allow-write-file",
+      "allow": [
+        {
+          "path": "$DOWNLOAD/Carrinho_*.xlsx"
+        }
+      ]
+    },
+    "dialog:default",
+    "fs:default"
+  ]
+}
